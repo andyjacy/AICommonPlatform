@@ -1151,8 +1151,10 @@
                     body: JSON.stringify({ query, top_k: 5 })
                 });
                 const data = await response.json();
-                displaySearchResults(data.results || []);
+                // RAG API 返回 documents，不是 results
+                displaySearchResults(data.documents || data.results || []);
             } catch (error) {
+                console.error('搜索错误:', error);
                 displaySearchResults([
                     { title: `关于 "${query}" 的搜索结果`, content: '示例搜索结果...', similarity: 0.95 }
                 ]);
@@ -1164,10 +1166,13 @@
                 <div class="qa-item">
                     <div class="qa-question">${item.title || ''}</div>
                     <div class="qa-answer">${item.content || ''}</div>
-                    <div class="qa-meta">相似度: ${(item.similarity || 0).toFixed(2)}</div>
+                    <div class="qa-meta">
+                        分类: ${item.category || '未分类'} | 
+                        来源: ${item.source || '内部'}
+                    </div>
                 </div>
             `).join('');
-            document.getElementById('searchResults').innerHTML = html || '<p style="color: #999;">未找到相关内容</p>';
+            document.getElementById('searchResults').innerHTML = html || '<p style="color: #999; text-align: center;">未找到相关内容</p>';
         }
 
         // ==================== 系统集成页面函数 ====================

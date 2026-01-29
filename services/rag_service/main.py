@@ -6,7 +6,12 @@ import time
 import sqlite3
 import json
 import os
+import logging
 from pathlib import Path
+
+# 配置日志
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="RAG Service Lite", version="2.0.0")
 
@@ -83,63 +88,84 @@ def insert_document(doc: Document):
         conn.close()
 
 def search_documents(query_text: str, top_k: int = 5, category: Optional[str] = None) -> List[Document]:
-    """从向量数据库搜索文档 - 带相关性阈值"""
+    """从向量数据库搜索文档 - 支持中文分词、字符匹配和部分匹配"""
+    import sys
+    print(f"🔍 [search_documents] 搜索开始: '{query_text}'", file=sys.stderr, flush=True)
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    query_lower = query_text.lower()
-    query_words = query_lower.split()  # 分解查询词
+    query_chars = list(query_text)  # 拆成单个字符
     
     try:
-        sql = '''
-        SELECT id, title, content, category, tags, source, created_at FROM documents
-        WHERE 1=1
-        '''
-        params = []
-        
         if category:
-            sql += ' AND category = ?'
-            params.append(category)
-        
-        # 计算相关性分数：优先匹配标题，其次匹配内容
-        # 如果查询词在标题中出现，得3分；在内容中出现，得1分
-        sql += '''
-        ORDER BY 
-            CASE 
-                WHEN LOWER(title) LIKE ? THEN 3
-                WHEN LOWER(content) LIKE ? THEN 1
-                ELSE 0
-            END DESC
-        LIMIT ?
-        '''
-        
-        search_pattern = f'%{query_lower}%'
-        params.extend([search_pattern, search_pattern, top_k])
+            sql = 'SELECT id, title, content, category, tags, source, created_at FROM documents WHERE category = ?'
+            params = [category]
+        else:
+            sql = 'SELECT id, title, content, category, tags, source, created_at FROM documents'
+            params = []
         
         cursor.execute(sql, params)
         rows = cursor.fetchall()
         
-        results = []
+        print(f"📚 [search_documents] 数据库中找到 {len(rows)} 个文档", file=sys.stderr, flush=True)
+        
+        # 在Python中计算相关性分数
+        scored_results = []
+        
         for row in rows:
-            title_match = query_lower in row[1].lower()
-            content_match = query_lower in row[2].lower()
+            title = row[1]
+            content = row[2]
+            
+            score = 0
+            matched_chars_list = []  # 记录匹配的字符
+            
+            # 1. 完全匹配查询文本（最高优先级）
+            if query_text in title:
+                score += 100
+            if query_text in content:
+                score += 50
+            
+            # 2. 字符匹配：检查查询中的每个字符
+            for char in query_chars:
+                if char in title:
+                    score += 20
+                    matched_chars_list.append(char)
+                if char in content and char not in matched_chars_list:
+                    score += 8
+                    if char not in matched_chars_list:
+                        matched_chars_list.append(char)
             
             # 只返回有匹配的文档
-            if title_match or content_match:
-                results.append(Document(
-                    id=row[0],
-                    title=row[1],
-                    content=row[2],
-                    category=row[3],
-                    tags=json.loads(row[4]) if row[4] else [],
-                    source=row[5],
-                    created_at=row[6]
-                ))
+            if score > 0:
+                print(f"   ✅ '{title}': 分数={score}", file=sys.stderr, flush=True)
+                scored_results.append({
+                    'doc': Document(
+                        id=row[0],
+                        title=row[1],
+                        content=row[2],
+                        category=row[3],
+                        tags=json.loads(row[4]) if row[4] else [],
+                        source=row[5],
+                        created_at=row[6]
+                    ),
+                    'score': score
+                })
+        
+        # 按相关性分数排序
+        scored_results.sort(key=lambda x: x['score'], reverse=True)
+        
+        # 提取排序后的文档
+        results = [item['doc'] for item in scored_results[:top_k]]
+        
+        print(f"✅ [search_documents] 返回 {len(results)} 个结果", file=sys.stderr, flush=True)
         
         conn.close()
         return results
     except Exception as e:
-        logger.error(f"搜索失败: {str(e)}")
+        print(f"❌ [search_documents] 搜索失败: {str(e)}", file=sys.stderr, flush=True)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
         conn.close()
         return []
 
