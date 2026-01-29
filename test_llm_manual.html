@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>LLM 模型更新测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0; box-sizing: border-box; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .success { background-color: #d4edda; color: #155724; padding: 10px; margin: 10px 0; }
+        .error { background-color: #f8d7da; color: #721c24; padding: 10px; margin: 10px 0; }
+        pre { background-color: #f5f5f5; padding: 10px; overflow-x: auto; }
+        #debug { height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 LLM 模型更新测试</h1>
+        
+        <h2>模型表单</h2>
+        <div>
+            <label>模型 ID（编辑）:</label>
+            <input type="number" id="modelId" value="2">
+        </div>
+        
+        <div>
+            <label>模型名称:</label>
+            <input type="text" id="llmName" value="OpenAI GPT-3.5 Turbo">
+        </div>
+        
+        <div>
+            <label>提供商:</label>
+            <select id="llmProvider">
+                <option value="">-- 选择 --</option>
+                <option value="OpenAI" selected>OpenAI</option>
+                <option value="Aliyun">阿里云</option>
+            </select>
+        </div>
+        
+        <div>
+            <label>模型类型:</label>
+            <select id="llmType">
+                <option value="api" selected>API</option>
+                <option value="local">本地</option>
+            </select>
+        </div>
+        
+        <div>
+            <label>API 端点:</label>
+            <input type="text" id="llmEndpoint" value="https://api.openai.com/v1/chat/completions">
+        </div>
+        
+        <div>
+            <label>API Key:</label>
+            <input type="password" id="llmApiKey" value="sk-test">
+        </div>
+        
+        <div>
+            <label>Base URL:</label>
+            <input type="text" id="llmBaseUrl" value="">
+        </div>
+        
+        <div>
+            <label>Max Tokens:</label>
+            <input type="number" id="llmMaxTokens" value="2048">
+        </div>
+        
+        <div>
+            <label>Temperature:</label>
+            <input type="number" id="llmTemperature" value="0.7" step="0.1" min="0" max="2">
+        </div>
+        
+        <div>
+            <label>描述:</label>
+            <textarea id="llmDescription" rows="3">Test model</textarea>
+        </div>
+        
+        <h2>操作</h2>
+        <button onclick="testEdit()">测试编辑（设置为编辑模式）</button>
+        <button onclick="testCreate()">测试创建（设置为创建模式）</button>
+        <button onclick="simulateSave()">模拟 saveLLMModel()</button>
+        <button onclick="sendPUT()">发送 PUT 请求</button>
+        <button onclick="sendPOST()">发送 POST 请求</button>
+        
+        <h2>调试输出</h2>
+        <div id="debug"></div>
+    </div>
+    
+    <script>
+        function log(msg) {
+            const debug = document.getElementById('debug');
+            debug.innerHTML += new Date().toLocaleTimeString() + ': ' + msg + '<br>';
+            debug.scrollTop = debug.scrollHeight;
+        }
+        
+        function getFormData() {
+            const getElementValue = (id, defaultVal = '') => {
+                const elem = document.getElementById(id);
+                return elem ? elem.value : defaultVal;
+            };
+            
+            const name = getElementValue('llmName', '').trim();
+            const provider = getElementValue('llmProvider', '');
+            const modelType = getElementValue('llmType', 'api');
+            const endpoint = getElementValue('llmEndpoint', '').trim();
+            const apiKey = getElementValue('llmApiKey', '').trim();
+            const baseUrl = getElementValue('llmBaseUrl', '').trim();
+            
+            const maxTokensStr = getElementValue('llmMaxTokens', '2048');
+            const maxTokens = parseInt(maxTokensStr) || 2048;
+            const temperatureStr = getElementValue('llmTemperature', '0.7');
+            const temperature = parseFloat(temperatureStr) || 0.7;
+            
+            const description = getElementValue('llmDescription', '').trim();
+            
+            return {
+                name, provider, modelType, endpoint, apiKey, baseUrl, 
+                maxTokens, temperature, description
+            };
+        }
+        
+        function testEdit() {
+            window.currentEditingModelId = parseInt(document.getElementById('modelId').value);
+            window.isEnteringEditMode = true;
+            log('✓ 设置编辑模式，modelId=' + window.currentEditingModelId);
+        }
+        
+        function testCreate() {
+            window.currentEditingModelId = null;
+            window.isEnteringEditMode = false;
+            log('✓ 设置创建模式');
+        }
+        
+        function simulateSave() {
+            const formData = getFormData();
+            const isEditing = window.currentEditingModelId != null;
+            const modelId = isEditing ? window.currentEditingModelId : null;
+            
+            log('=== 模拟 saveLLMModel() ===');
+            log('编辑模式: ' + isEditing);
+            log('模型 ID: ' + modelId);
+            log('表单数据: ' + JSON.stringify(formData));
+            
+            let requestData = {};
+            
+            if (isEditing) {
+                log('→ 构建编辑请求...');
+                if (formData.provider) requestData.provider = formData.provider;
+                if (formData.modelType) requestData.model_type = formData.modelType;
+                if (formData.maxTokens !== undefined && !isNaN(formData.maxTokens)) requestData.max_tokens = formData.maxTokens;
+                if (formData.temperature !== undefined && !isNaN(formData.temperature)) requestData.temperature = formData.temperature;
+                if (formData.endpoint) requestData.endpoint = formData.endpoint;
+                if (formData.apiKey) requestData.api_key = formData.apiKey;
+                if (formData.baseUrl) requestData.base_url = formData.baseUrl;
+                if (formData.description) requestData.description = formData.description;
+            } else {
+                log('→ 构建创建请求...');
+                requestData = {
+                    name: formData.name, 
+                    provider: formData.provider, 
+                    model_type: formData.modelType
+                };
+                if (formData.maxTokens !== undefined && !isNaN(formData.maxTokens)) requestData.max_tokens = formData.maxTokens;
+                if (formData.temperature !== undefined && !isNaN(formData.temperature)) requestData.temperature = formData.temperature;
+                if (formData.endpoint) requestData.endpoint = formData.endpoint;
+                if (formData.apiKey) requestData.api_key = formData.apiKey;
+                if (formData.baseUrl) requestData.base_url = formData.baseUrl;
+                if (formData.description) requestData.description = formData.description;
+            }
+            
+            log('请求数据: ' + JSON.stringify(requestData));
+            
+            // 逐字段分析
+            for (const [key, value] of Object.entries(requestData)) {
+                log(`  ${key}: ${JSON.stringify(value)} (${typeof value})`);
+            }
+        }
+        
+        async function sendPUT() {
+            const formData = getFormData();
+            const modelId = window.currentEditingModelId;
+            
+            if (!modelId) {
+                log('❌ 错误：未设置 modelId，请先点击"测试编辑"');
+                return;
+            }
+            
+            let requestData = {};
+            if (formData.provider) requestData.provider = formData.provider;
+            if (formData.modelType) requestData.model_type = formData.modelType;
+            if (formData.maxTokens !== undefined && !isNaN(formData.maxTokens)) requestData.max_tokens = formData.maxTokens;
+            if (formData.temperature !== undefined && !isNaN(formData.temperature)) requestData.temperature = formData.temperature;
+            if (formData.endpoint) requestData.endpoint = formData.endpoint;
+            if (formData.apiKey) requestData.api_key = formData.apiKey;
+            if (formData.baseUrl) requestData.base_url = formData.baseUrl;
+            if (formData.description) requestData.description = formData.description;
+            
+            const url = `/api/llm/models/${modelId}`;
+            const body = JSON.stringify(requestData);
+            
+            log(`→ 发送 PUT 请求到 ${url}`);
+            log(`请求体: ${body}`);
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: body
+                });
+                
+                log(`← 响应: ${response.status} ${response.statusText}`);
+                const data = await response.json();
+                log(`响应数据: ${JSON.stringify(data)}`);
+                
+                if (response.status === 200) {
+                    log('<span style="background: #d4edda; color: #155724; padding: 2px 4px;">✓ 请求成功!</span>');
+                } else if (response.status === 422) {
+                    log('<span style="background: #f8d7da; color: #721c24; padding: 2px 4px;">✗ 验证错误!</span>');
+                    if (Array.isArray(data.detail)) {
+                        data.detail.forEach(err => {
+                            log(`  ⚠ ${err.loc.join('.')}: ${err.msg}`);
+                        });
+                    }
+                }
+            } catch (error) {
+                log(`❌ 错误: ${error.message}`);
+            }
+        }
+        
+        async function sendPOST() {
+            const formData = getFormData();
+            
+            let requestData = {
+                name: formData.name,
+                provider: formData.provider,
+                model_type: formData.modelType
+            };
+            if (formData.maxTokens !== undefined && !isNaN(formData.maxTokens)) requestData.max_tokens = formData.maxTokens;
+            if (formData.temperature !== undefined && !isNaN(formData.temperature)) requestData.temperature = formData.temperature;
+            if (formData.endpoint) requestData.endpoint = formData.endpoint;
+            if (formData.apiKey) requestData.api_key = formData.apiKey;
+            if (formData.baseUrl) requestData.base_url = formData.baseUrl;
+            if (formData.description) requestData.description = formData.description;
+            
+            const url = '/api/llm/models';
+            const body = JSON.stringify(requestData);
+            
+            log(`→ 发送 POST 请求到 ${url}`);
+            log(`请求体: ${body}`);
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: body
+                });
+                
+                log(`← 响应: ${response.status} ${response.statusText}`);
+                const data = await response.json();
+                log(`响应数据: ${JSON.stringify(data)}`);
+                
+                if (response.status === 200 || response.status === 201) {
+                    log('<span style="background: #d4edda; color: #155724; padding: 2px 4px;">✓ 请求成功!</span>');
+                }
+            } catch (error) {
+                log(`❌ 错误: ${error.message}`);
+            }
+        }
+        
+        // 初始化
+        log('✓ 测试页面已加载');
+    </script>
+</body>
+</html>

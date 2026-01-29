@@ -1,0 +1,103 @@
+{
+  "app": {
+    "title": "AI Common Platform",
+    "subtitle": "Intelligent Q&A System"
+  },
+  "navigation": {
+    "home": "Home",
+    "qa": "Q&A",
+    "history": "History",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "username": "Username",
+    "password": "Password",
+    "remember_me": "Remember me",
+    "forgot_password": "Forgot password?",
+    "sign_up": "Sign up",
+    "login_success": "Login successful",
+    "logout_success": "Logout successful",
+    "invalid_credentials": "Invalid username or password",
+    "token_invalid": "Token invalid or expired"
+  },
+  "qa": {
+    "title": "Intelligent Q&A",
+    "question_placeholder": "Please enter your question...",
+    "ask_button": "Ask",
+    "asking": "Processing...",
+    "answer": "Answer",
+    "confidence": "Confidence",
+    "sources": "References",
+    "execution_time": "Execution Time",
+    "no_answer": "Sorry, unable to get the answer at the moment. Please try again later."
+  },
+  "history": {
+    "title": "Q&A History",
+    "empty": "No Q&A records",
+    "question": "Question",
+    "answer": "Answer",
+    "time": "Time",
+    "type": "Type",
+    "view_details": "View Details",
+    "delete": "Delete",
+    "export": "Export"
+  },
+  "trace": {
+    "title": "Call Chain Tracking",
+    "stage": "Stage",
+    "service": "Service",
+    "status": "Status",
+    "duration": "Duration",
+    "data": "Data",
+    "steps": {
+      "input_processing": "Input Processing",
+      "intent_recognition": "Intent Recognition",
+      "knowledge_retrieval": "Knowledge Retrieval",
+      "vectorization": "Vectorization",
+      "vector_search": "Vector Search",
+      "context_enhancement": "Context Enhancement",
+      "data_query": "Data Query",
+      "permission_check": "Permission Check",
+      "prompt_assembly": "Prompt Assembly",
+      "model_selection": "Model Selection",
+      "llm_call": "LLM Call",
+      "api_request": "API Request",
+      "result_processing": "Result Processing",
+      "formatting": "Formatting",
+      "response_return": "Response Return"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "language": "Language",
+    "theme": "Theme",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "security": "Security",
+    "language_zh": "中文",
+    "language_en": "English",
+    "save": "Save",
+    "saved": "Saved",
+    "language_changed": "Language switched"
+  },
+  "status": {
+    "success": "Success",
+    "error": "Error",
+    "pending": "Pending",
+    "warning": "Warning",
+    "loading": "Loading..."
+  },
+  "messages": {
+    "loading": "Loading...",
+    "error_loading": "Failed to load, please retry",
+    "connection_error": "Connection failed",
+    "timeout": "Request timeout",
+    "server_error": "Server error",
+    "unauthorized": "Unauthorized",
+    "not_found": "Not found"
+  }
+}

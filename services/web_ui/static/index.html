@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>AI Common Platform v2.1.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* 加载遮罩样式 */
+        #loadingMask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.3s ease-out;
+        }
+
+        #loadingMask.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            position: absolute;
+            bottom: 100px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #667eea;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 0 30px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            margin-right: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            flex: 1;
+            list-style: none;
+        }
+
+        .nav-item {
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* 容器 */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .page-header p {
+            color: #999;
+            font-size: 16px;
+        }
+
+        /* 布局 */
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 输入框 */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        textarea {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* 按钮 */
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* QA 项目 */
+        .qa-item {
+            background: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .qa-question {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .qa-answer {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .qa-meta {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 选项卡 */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            font-weight: 600;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 隐藏不必要的页面 */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .navbar {
+                padding: 0 15px;
+            }
+
+            .nav-menu {
+                gap: 15px;
+                font-size: 14px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载遮罩 -->
+    <div id="loadingMask">
+        <div style="text-align: center;">
+            <div class="spinner"></div>
+            <div class="loading-text">正在加载...</div>
+        </div>
+    </div>
+
+    <!-- DEBUG面板 -->
+    <div id="debugPanel" style="position: fixed; top: 70px; right: 20px; width: 300px; max-height: 400px; background: rgba(0,0,0,0.9); color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 4px; overflow-y: auto; z-index: 10000; display: none; border: 1px solid #0f0;">
+        <div style="margin-bottom: 10px; font-weight: bold; color: #0ff;">🔍 DEBUG LOG</div>
+        <div id="debugContent" style="white-space: pre-wrap; word-break: break-all;"></div>
+    </div>
+
+    <!-- 导航栏 -->
+    <div class="navbar">
+        <div class="navbar-brand">🤖 AI Platform</div>
+        <ul class="nav-menu">
+            <li class="nav-item active" data-page="qa">💬 问答中心</li>
+            <li class="nav-item" data-page="prompt">📝 Prompt 管理</li>
+            <li class="nav-item" data-page="rag">📚 知识库</li>
+            <li class="nav-item" data-page="agent">🤖 Agent 工具</li>
+            <li class="nav-item" data-page="integration">🔗 系统集成</li>
+            <li class="nav-item" data-page="llm">🧠 大模型</li>
+            <li class="nav-item" data-page="monitor">📊 监控面板</li>
+        </ul>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 问答页面 -->
+        <div class="page active" data-page-id="qa">
+            <div class="page-header">
+                <h1>💬 问答中心</h1>
+                <p>输入问题，AI 将为您提供智能回答</p>
+            </div>
+
+            <div class="layout">
+                <div class="main-content">
+                    <div class="input-group">
+                        <input type="text" id="questionInput" placeholder="输入您的问题...">
+                        <button class="btn" id="askBtn" onclick="askQuestion()">提问</button>
+                    </div>
+
+                    <div id="progressContainer" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">处理中: 0%</div>
+                    </div>
+
+                    <label style="display: flex; align-items: center; gap: 8px; margin: 20px 0; color: #667eea; font-size: 14px;">
+                        <input type="checkbox" id="enableTrace">
+                        显示调用链
+                    </label>
+
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTab(event, 'history')">回答历史</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'search')">知识库搜索</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'trace')">调用链追踪</button>
+                    </div>
+
+                    <div id="history-tab" class="tab-content active">
+                        <div id="responseArea">
+                            <p style="color: #999; text-align: center;">提问后，回答将显示在这里</p>
+                        </div>
+                    </div>
+
+                    <div id="search-tab" class="tab-content">
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <input type="text" id="searchInput" placeholder="搜索知识库..." style="flex: 1;">
+                            <button class="btn" onclick="searchKnowledge()">搜索</button>
+                        </div>
+                        <div id="searchResults">
+                            <p style="color: #999; text-align: center;">搜索结果将显示在这里</p>
+                        </div>
+                    </div>
+
+                    <div id="trace-tab" class="tab-content">
+                        <div id="traceArea">
+                            <p style="color: #999; text-align: center;">勾选"显示调用链"后，提问时将显示完整的处理流程</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar">
+                    <div class="card">
+                        <h3>🟢 服务状态</h3>
+                        <div style="font-size: 13px; color: #666;">
+                            <div style="margin-bottom: 10px;">✅ 所有服务正常</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>⚙️ 系统信息</h3>
+                        <div style="font-size: 13px; color: #666;">
+                            <div style="margin-bottom: 8px;">版本: 1.0.0</div>
+                            <div>环境: 轻量版</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 其他页面 (简化版) -->
+        <div class="page" data-page-id="prompt">
+            <div class="page-header">
+                <h1>📝 Prompt 管理</h1>
+                <p>查看和管理 AI 助手角色配置</p>
+            </div>
+            <div class="card" id="promptContainer">
+                <p style="color: #999; text-align: center; padding: 30px;">加载中...</p>
+            </div>
+        </div>
+
+        <div class="page" data-page-id="rag">
+            <div class="page-header">
+                <h1>📚 知识库管理</h1>
+                <p>企业内部知识库，支持文档搜索和检索</p>
+            </div>
+            <div class="card">
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="ragSearchInput" placeholder="搜索知识库文档..." 
+                           style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; margin-bottom: 10px;">
+                    <button class="btn" onclick="searchRagDocuments()" style="width: 100%;">🔍 搜索</button>
+                </div>
+                <div id="ragResults" style="margin-top: 20px;">
+                    <p style="color: #999; text-align: center;">加载中...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="page" data-page-id="agent">
+            <div class="page-header">
+                <h1>🤖 Agent 工具</h1>
+                <p>AI Agent 可以使用的工具和集成能力</p>
+            </div>
+            <div class="card">
+                <p style="color: #999;">Agent 工具功能开发中...</p>
+            </div>
+        </div>
+
+        <div class="page" data-page-id="integration">
+            <div class="page-header">
+                <h1>🔗 系统集成</h1>
+                <p>企业各类系统的知识库展示和智能查询</p>
+            </div>
+            
+            <!-- 知识库查询面板 -->
+            <div class="card">
+                <h3>📚 企业知识库</h3>
+                <div style="margin-bottom: 15px;">
+                    <input type="text" id="integrationSearchInput" placeholder="搜索企业知识库（如：销售、HR、财务、技术等）" 
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    <button onclick="searchIntegrationKnowledge()" 
+                            style="margin-top: 10px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        🔍 搜索
+                    </button>
+                </div>
+                <div id="integrationResults" style="margin-top: 15px;"></div>
+            </div>
+            
+            <!-- 业务分类导航 -->
+            <div class="card">
+                <h3>📊 按业务分类浏览</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                    <button onclick="searchIntegrationByCategory('sales')" 
+                            style="padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        💼 销售部门
+                    </button>
+                    <button onclick="searchIntegrationByCategory('hr')" 
+                            style="padding: 12px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        👥 人力资源
+                    </button>
+                    <button onclick="searchIntegrationByCategory('finance')" 
+                            style="padding: 12px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        💰 财务部门
+                    </button>
+                    <button onclick="searchIntegrationByCategory('technical')" 
+                            style="padding: 12px; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        🔧 技术部门
+                    </button>
+                    <button onclick="searchIntegrationByCategory('supply_chain')" 
+                            style="padding: 12px; background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        🚚 供应链
+                    </button>
+                    <button onclick="searchIntegrationByCategory('marketing')" 
+                            style="padding: 12px; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        📢 市场营销
+                    </button>
+                    <button onclick="searchIntegrationByCategory('security')" 
+                            style="padding: 12px; background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        🔐 安全合规
+                    </button>
+                    <button onclick="searchIntegrationByCategory('operations')" 
+                            style="padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        ⚙️ 运营管理
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 系统集成状态 -->
+            <div class="card">
+                <h3>🏢 企业系统连接状态</h3>
+                <div id="systemStatusContainer" style="margin-top: 15px;">
+                    <div style="padding: 10px; background: #f0f0f0; border-radius: 4px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span><strong>ERP 系统</strong> - 销售、库存、采购</span>
+                            <span style="color: #4caf50; font-weight: 600;">✓ 已连接</span>
+                        </div>
+                        <div style="font-size: 12px; color: #999; margin-top: 5px;">数据库: PostgreSQL | 更新频率: 实时</div>
+                    </div>
+                    <div style="padding: 10px; background: #f0f0f0; border-radius: 4px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span><strong>HR 系统</strong> - 员工、薪酬、绩效</span>
+                            <span style="color: #4caf50; font-weight: 600;">✓ 已连接</span>
+                        </div>
+                        <div style="font-size: 12px; color: #999; margin-top: 5px;">数据库: PostgreSQL | 更新频率: 每天</div>
+                    </div>
+                    <div style="padding: 10px; background: #f0f0f0; border-radius: 4px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span><strong>财务系统</strong> - 预算、账务、报表</span>
+                            <span style="color: #4caf50; font-weight: 600;">✓ 已连接</span>
+                        </div>
+                        <div style="font-size: 12px; color: #999; margin-top: 5px;">数据库: SAP | 更新频率: 每周</div>
+                    </div>
+                    <div style="padding: 10px; background: #f0f0f0; border-radius: 4px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span><strong>CRM 系统</strong> - 客户信息、销售机会</span>
+                            <span style="color: #4caf50; font-weight: 600;">✓ 已连接</span>
+                        </div>
+                        <div style="font-size: 12px; color: #999; margin-top: 5px;">API: REST | 更新频率: 实时</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page" data-page-id="llm">
+            <div class="page-header">
+                <h1>🧠 大模型管理</h1>
+                <p>配置、管理和选择 AI 大模型接口</p>
+            </div>
+            <div class="card" id="llmContainer">
+                <p style="color: #999; text-align: center; padding: 30px;">加载中...</p>
+            </div>
+        </div>
+
+        <div class="page" data-page-id="monitor">
+            <div class="page-header">
+                <h1>📊 监控面板</h1>
+                <p>系统实时监控和性能统计</p>
+            </div>
+            <div class="card">
+                <p style="color: #999;">监控面板功能开发中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 初始化 ====================
+        
+        // 隐藏加载遮罩
+        function hideLoadingMask() {
+            const mask = document.getElementById('loadingMask');
+            if (mask) {
+                mask.classList.add('hidden');
+                // 300ms 后移除 DOM
+                setTimeout(() => {
+                    if (mask.parentNode) mask.remove();
+                }, 300);
+            }
+        }
+
+        // ==================== 全局日志函数 ====================
+        window.debugLogs = [];
+        
+        function addDebugLog(msg) {
+            console.log(msg);
+            window.debugLogs.push(msg);
+            
+            const debugPanel = document.getElementById('debugPanel');
+            const debugContent = document.getElementById('debugContent');
+            if (debugContent) {
+                debugContent.textContent += msg + '\n';
+                debugPanel.style.display = 'block'; // Show debug panel
+            }
+        }
+
+        addDebugLog('📋 页面开始加载，readyState: ' + document.readyState);
+
+        // 页面加载完成时隐藏加载遮罩
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', hideLoadingMask);
+        } else {
+            hideLoadingMask();
+        }
+
+        // 全局变量
+        window.currentTraceData = null;
+        window.isAnswering = false;
+
+        // ==================== 初始化数据加载 ====================
+        
+        async function loadInitialData() {
+            try {
+                // 并行加载所有数据
+                await Promise.all([
+                    loadQAHistory(),
+                    loadPrompts()
+                ]);
+            } catch (error) {
+                console.error('初始化数据加载失败:', error);
+            }
+        }
+
+        // 加载问答历史
+        async function loadQAHistory() {
+            try {
+                const response = await fetch('/api/qa/history/all');
+                const data = await response.json();
+                
+                if (data && data.history && data.history.length > 0) {
+                    displayQAHistory(data.history);
+                    console.log('✅ 加载了', data.history.length, '条问答历史记录');
+                }
+            } catch (error) {
+                console.error('加载问答历史失败:', error);
+            }
+        }
+
+        // 显示问答历史
+        function displayQAHistory(history) {
+            const responseArea = document.getElementById('responseArea');
+            const historyContainer = document.getElementById('history-tab');
+            
+            if (!responseArea && !historyContainer) {
+                console.error('❌ 找不到显示历史的容器');
+                return;
+            }
+
+            const container = responseArea || historyContainer;
+
+            if (history.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">暂无问答记录</div>';
+                return;
+            }
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 15px; padding: 10px;">';
+            history.forEach((item, idx) => {
+                const timestamp = item.created_at ? new Date(item.created_at).toLocaleString('zh-CN') : '未知时间';
+                const confidence = item.confidence ? (item.confidence * 100).toFixed(0) + '%' : 'N/A';
+                const typeLabel = {
+                    'sales_analysis': '💼 销售',
+                    'hr_policy': '👥 HR',
+                    'technical_design': '🏗️ 技术',
+                    'finance_budget': '💰 财务',
+                    'supply_chain': '🚚 供应链',
+                    'general': '💬 通用'
+                }[item.question_type] || '📌 ' + item.question_type;
+                
+                html += `
+                    <div style="background: white; padding: 18px; border-radius: 8px; border-left: 4px solid #667eea; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" 
+                         onmouseover="this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.15)'; this.style.transform='translateX(4px)'" 
+                         onmouseout="this.style.boxShadow='0 2px 4px rgba(0,0,0,0.05)'; this.style.transform='translateX(0)'"
+                         onclick="showQADetail(${idx})">
+                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <span style="background: #667eea; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; font-weight: 500;">${typeLabel}</span>
+                                </div>
+                                <h4 style="margin: 0 0 8px 0; color: #333; font-size: 14px; font-weight: 600;">Q: ${item.question}</h4>
+                                <p style="margin: 0; color: #666; font-size: 13px; line-height: 1.6; max-height: 60px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">A: ${item.answer}</p>
+                            </div>
+                            <div style="text-align: right; font-size: 12px; color: #999; white-space: nowrap; min-width: 100px;">
+                                <div style="color: #667eea; font-weight: 600; margin-bottom: 4px;">置信度: ${confidence}</div>
+                                <div>${timestamp.split(' ')[0]}</div>
+                                <div>${timestamp.split(' ')[1]}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+            console.log('✅ 已显示', history.length, '条问答历史');
+        }
+
+        // 显示问答详情
+        window.showQADetail = function(index) {
+            const items = document.querySelectorAll('[onclick*="showQADetail"]');
+            if (index < items.length) {
+                const item = items[index];
+                const question = item.querySelector('h4').textContent.replace('Q: ', '');
+                const answer = item.querySelector('p').textContent.replace('A: ', '');
+                const details = `
+问题：${question}
+
+回答：${answer}
+                `.trim();
+                alert(details);
+            }
+        }
+
+        // 加载Prompt模板
+        async function loadPrompts() {
+            try {
+                const response = await fetch('/api/prompts');
+                const data = await response.json();
+                
+                // API 返回 templates 字段
+                const prompts = data.templates || data.prompts || [];
+                if (prompts && prompts.length > 0) {
+                    displayPrompts(prompts);
+                    console.log('✅ 加载了', prompts.length, '个Prompt模板');
+                }
+            } catch (error) {
+                console.error('加载Prompt模板失败:', error);
+            }
+        }
+
+        // 显示Prompt模板
+        function displayPrompts(prompts) {
+            const promptContainer = document.getElementById('promptContainer');
+            
+            if (!promptContainer) {
+                console.error('❌ 找不到 promptContainer 元素');
+                return;
+            }
+
+            if (!prompts || prompts.length === 0) {
+                promptContainer.innerHTML = '<p style="color: #999; text-align: center; padding: 30px;">暂无Prompt模板</p>';
+                return;
+            }
+
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 20px;">';
+            
+            prompts.forEach(prompt => {
+                const icon = {
+                    'general_assistant': '💬',
+                    'sales_analyst': '💼',
+                    'hr_manager': '👥',
+                    'tech_architect': '🏗️',
+                    'financial_analyst': '💰',
+                    'supply_chain_manager': '🚚'
+                }[prompt.role] || '🤖';
+
+                const systemPromptPreview = (prompt.system_prompt || '').substring(0, 80) + '...';
+
+                html += `
+                    <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s;"
+                         onmouseover="this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.15)'; this.style.transform='translateY(-2px)'"
+                         onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'; this.style.transform='translateY(0)'">
+                        <div style="font-size: 36px; margin-bottom: 12px;">${icon}</div>
+                        <h3 style="margin: 0 0 8px 0; color: #333; font-size: 16px; font-weight: 600;">${prompt.name}</h3>
+                        <p style="margin: 0 0 12px 0; color: #999; font-size: 12px; line-height: 1.5;">${prompt.description || '暂无描述'}</p>
+                        <div style="background: #f5f5f5; padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; color: #666; max-height: 80px; overflow-y: auto;">
+                            ${systemPromptPreview}
+                        </div>
+                        <div style="display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid #f0f0f0;">
+                            <span style="display: inline-block; background: #667eea; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 500;">${prompt.role}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            promptContainer.innerHTML = html;
+            console.log('✅ 已显示', prompts.length, '个Prompt模板');
+        }
+
+        // ==================== 导航 ====================
+        
+        function switchPage(pageId) {
+            // 隐藏所有页面
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            
+            // 取消所有导航项激活
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            // 显示选中页面
+            const page = document.querySelector(`[data-page-id="${pageId}"]`);
+            if (page) page.classList.add('active');
+            
+            // 激活导航项
+            const navItem = document.querySelector(`[data-page="${pageId}"]`);
+            if (navItem) navItem.classList.add('active');
+        }
+
+        // 导航项点击事件
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                switchPage(this.dataset.page);
+            });
+        });
+
+        // ==================== Tab 切换 ====================
+        
+        function switchTab(event, tabName) {
+            // 隐藏所有 Tab 内容
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            // 取消所有 Tab 按钮激活
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            // 显示选中 Tab
+            const content = document.getElementById(`${tabName}-tab`);
+            if (content) content.classList.add('active');
+            
+            // 激活 Tab 按钮
+            event.target.classList.add('active');
+        }
+
+        // ==================== 问答功能 ====================
+        
+        async function askQuestion() {
+            const question = document.getElementById('questionInput').value.trim();
+            const enableTrace = document.getElementById('enableTrace').checked;
+            
+            if (!question) {
+                alert('请输入问题');
+                return;
+            }
+
+            if (window.isAnswering) return;
+            window.isAnswering = true;
+
+            const askBtn = document.getElementById('askBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            askBtn.disabled = true;
+            askBtn.textContent = '处理中...';
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = '处理中: 0%';
+
+            // 模拟进度条增长
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                if (progress < 90) {
+                    progress += Math.random() * 20;
+                    progressFill.style.width = progress + '%';
+                    progressText.textContent = '处理中: ' + Math.floor(progress) + '%';
+                }
+            }, 300);
+
+            const responseArea = document.getElementById('responseArea');
+            responseArea.innerHTML = '<div style="text-align: center; padding: 30px;" data-placeholder="loading"><div style="display: inline-block; width: 30px; height: 30px; border: 3px solid #f0f0f0; border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite;"></div><div style="margin-top: 10px; color: #999;">正在处理...</div></div>';
+
+            try {
+                // 始终使用 trace 端点以获取完整的调用链信息
+                const endpoint = '/api/trace/qa/ask';
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question, token: null })
+                });
+
+                const data = await response.json();
+                console.log('API Response:', data);
+
+                // 保存调用链数据
+                if (data.trace) {
+                    window.currentTraceData = data.trace;
+                    console.log('✅ Trace data saved:', window.currentTraceData);
+                } else {
+                    console.warn('⚠️ No trace data in response');
+                }
+
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                progressText.textContent = '处理中: 100%';
+
+                setTimeout(() => {
+                    displayResponse(data, enableTrace);
+                    progressContainer.style.display = 'none';
+                    askBtn.disabled = false;
+                    askBtn.textContent = '提问';
+                    window.isAnswering = false;
+                }, 500);
+
+                document.getElementById('questionInput').value = '';
+
+            } catch (error) {
+                console.error('Error:', error);
+                clearInterval(progressInterval);
+                
+                // 显示模拟数据
+                const mockData = {
+                    question,
+                    answer: '根据您的问题进行分析...\n\n这是一个示例回答。实际回答将根据 RAG 检索结果和 LLM 生成的内容组成。',
+                    confidence: 0.85,
+                    execution_time: 0.45,
+                    trace: {
+                        trace_id: 'demo-' + Date.now(),
+                        total_time: '0.45s',
+                        total_steps: 3,
+                        steps: [
+                            { seq: 1, service: 'QA Entry', stage: '输入处理', purpose: '接收问题文本', status: 'success' },
+                            { seq: 2, service: 'RAG Service', stage: '知识检索', purpose: '搜索相关文档', status: 'success' },
+                            { seq: 3, service: 'LLM Service', stage: 'LLM 生成', purpose: '生成回答', status: 'success' }
+                        ]
+                    }
+                };
+                window.currentTraceData = mockData.trace;
+                displayResponse(mockData, enableTrace);
+                
+                progressContainer.style.display = 'none';
+                askBtn.disabled = false;
+                askBtn.textContent = '提问';
+                window.isAnswering = false;
+            }
+        }
+
+        function displayResponse(data, showTrace) {
+            const responseArea = document.getElementById('responseArea');
+            const hasTrace = data.trace && data.trace.steps && data.trace.steps.length > 0;
+            
+            // 移除旧的"正在处理"占位符（如果存在）
+            const placeholders = responseArea.querySelectorAll('[data-placeholder="loading"]');
+            placeholders.forEach(el => el.remove());
+            
+            const html = `
+                <div class="qa-item">
+                    <div class="qa-question">Q: ${data.question || ''}</div>
+                    <div class="qa-answer">${(data.answer || '').replace(/\n/g, '<br>')}</div>
+                    <div class="qa-meta">
+                        <span>置信度: ${((data.confidence || 0.8) * 100).toFixed(0)}%</span> | 
+                        <span>耗时: ${(data.execution_time || 0.5).toFixed(2)}s</span>
+                        ${hasTrace ? `<button class="btn" style="margin-left: 10px; padding: 8px 16px; font-size: 12px; cursor: pointer;" onclick="viewTrace()">🔍 查看调用链</button>` : ''}
+                    </div>
+                </div>
+            `;
+            responseArea.innerHTML = html + responseArea.innerHTML;
+        }
+
+        function viewTrace() {
+            console.log('viewTrace called, currentTraceData:', window.currentTraceData);
+            displayTrace();
+            // 切换到追踪选项卡
+            const traceTabs = document.querySelectorAll('.tab-btn');
+            if (traceTabs[2]) {
+                traceTabs[2].click();
+            }
+        }
+
+        function displayTrace() {
+            let trace = window.currentTraceData;
+            
+            console.log('📍 displayTrace called');
+            console.log('📍 window.currentTraceData:', window.currentTraceData);
+            console.log('📍 trace object:', trace);
+            
+            if (!trace) {
+                console.error('❌ No trace data available');
+                const message = '尚无调用链数据。请先提出一个问题来生成追踪信息。';
+                document.getElementById('traceArea').innerHTML = `<div style="background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 15px; border-radius: 6px; text-align: center;">ℹ️ ${message}</div>`;
+                return;
+            }
+            
+            if (!trace.steps || trace.steps.length === 0) {
+                console.error('❌ No steps in trace data');
+                document.getElementById('traceArea').innerHTML = '<div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 6px;">⚠️ 调用链数据为空或无法解析</div>';
+                return;
+            }
+
+            console.log(`✅ Found ${trace.steps.length} steps in trace`);
+            
+            // 收集各个步骤的回答信息
+            let answerInfo = '';
+            if (trace.steps) {
+                trace.steps.forEach((step, idx) => {
+                    if (step.response_data || step.output || step.result) {
+                        const data = step.response_data || step.output || step.result;
+                        if (typeof data === 'object') {
+                            answerInfo += `\n【${step.service} 输出】\n${JSON.stringify(data, null, 2)}`;
+                        } else {
+                            answerInfo += `\n【${step.service} 输出】\n${data}`;
+                        }
+                    }
+                });
+            }
+            
+            let html = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="font-weight: 600; margin-bottom: 15px; font-size: 16px;">📊 调用链追踪详情</div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; font-size: 13px;">
+                        <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px;">
+                            <div style="opacity: 0.8;">追踪 ID</div>
+                            <div style="font-weight: 600; font-size: 14px;">${trace.trace_id || 'N/A'}</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px;">
+                            <div style="opacity: 0.8;">步骤数</div>
+                            <div style="font-weight: 600; font-size: 14px;">${trace.steps.length} 步</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px;">
+                            <div style="opacity: 0.8;">耗时</div>
+                            <div style="font-weight: 600; font-size: 14px;">${trace.total_time || '0.5s'}</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; margin-bottom: 15px; color: #333; font-size: 15px;">🔄 处理步骤及详细信息</div>
+            `;
+
+            trace.steps.forEach((step, idx) => {
+                const status = step.status === 'success' ? '✅' : step.status === 'error' ? '❌' : '⚠️';
+                const duration = step.duration ? ` (${step.duration}ms)` : '';
+                
+                // 构建步骤详情
+                let stepDetail = ``;
+                stepDetail += `<strong>阶段:</strong> ${step.stage || ''}<br>`;
+                stepDetail += `<strong>用途:</strong> ${step.purpose || ''}<br>`;
+                if (duration) stepDetail += `<strong>耗时:</strong> ${duration}<br>`;
+                
+                // 添加回答信息
+                if (step.response_data || step.output || step.result || step.answer) {
+                    const data = step.response_data || step.output || step.result || step.answer;
+                    stepDetail += `<strong>结果信息:</strong><br>`;
+                    if (typeof data === 'string') {
+                        stepDetail += `<span style="color: #555; word-break: break-all;">${data}</span><br>`;
+                    } else if (typeof data === 'object') {
+                        stepDetail += `<div style="background: #f0f0f0; padding: 8px; margin-top: 5px; border-radius: 4px; font-family: monospace; font-size: 11px; max-height: 150px; overflow-y: auto;">${JSON.stringify(data, null, 2)}</div><br>`;
+                    }
+                }
+                
+                html += `
+                    <div style="background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #667eea;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-weight: 600; color: #333;">Step ${step.seq || idx + 1}: ${step.service || '未知服务'}</span>
+                            <span style="font-size: 16px;">${status}</span>
+                        </div>
+                        <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                            ${stepDetail}
+                        </div>
+                        ${step.error ? `<div style="color: #f44336; font-size: 12px; margin-top: 5px;"><strong>错误:</strong> ${step.error}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            console.log('✅ displayTrace rendering complete');
+            document.getElementById('traceArea').innerHTML = html;
+        }
+
+        // ==================== 搜索功能 ====================
+        
+        async function searchKnowledge() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                alert('请输入搜索词');
+                return;
+            }
+
+            const results = document.getElementById('searchResults');
+            results.innerHTML = '<p style="color: #999; text-align: center;">搜索中...</p>';
+
+            try {
+                const response = await fetch('/api/rag/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, top_k: 5 })
+                });
+                const data = await response.json();
+                displaySearchResults(data.results || []);
+            } catch (error) {
+                displaySearchResults([
+                    { title: `关于 "${query}" 的搜索结果`, content: '示例搜索结果...', similarity: 0.95 }
+                ]);
+            }
+        }
+
+        function displaySearchResults(items) {
+            const html = items.map(item => `
+                <div class="qa-item">
+                    <div class="qa-question">${item.title || ''}</div>
+                    <div class="qa-answer">${item.content || ''}</div>
+                    <div class="qa-meta">相似度: ${(item.similarity || 0).toFixed(2)}</div>
+                </div>
+            `).join('');
+            document.getElementById('searchResults').innerHTML = html || '<p style="color: #999;">未找到相关内容</p>';
+        }
+
+        // ==================== 系统集成页面函数 ====================
+        async function searchIntegrationKnowledge() {
+            const searchInput = document.getElementById('integrationSearchInput').value.trim();
+            if (!searchInput) {
+                alert('请输入搜索关键词');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/rag/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: searchInput, top_k: 10 })
+                });
+                
+                const data = await response.json();
+                displayIntegrationResults(data.documents || []);
+            } catch (error) {
+                console.error('搜索失败:', error);
+                alert('搜索失败: ' + error.message);
+            }
+        }
+
+        async function searchIntegrationByCategory(category) {
+            const categoryLabels = {
+                'sales': '销售部门',
+                'hr': '人力资源',
+                'finance': '财务部门',
+                'technical': '技术部门',
+                'supply_chain': '供应链',
+                'marketing': '市场营销',
+                'security': '安全合规',
+                'operations': '运营管理'
+            };
+            
+            document.getElementById('integrationSearchInput').value = categoryLabels[category] || category;
+            
+            try {
+                const response = await fetch('/api/rag/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: categoryLabels[category] || category, top_k: 15, category: category })
+                });
+                
+                const data = await response.json();
+                displayIntegrationResults(data.documents || []);
+            } catch (error) {
+                console.error('搜索失败:', error);
+            }
+        }
+
+        function displayIntegrationResults(documents) {
+            if (!documents || documents.length === 0) {
+                document.getElementById('integrationResults').innerHTML = '<div style="text-align: center; padding: 20px; color: #999;">⚠️ 未找到相关企业知识</div>';
+                return;
+            }
+            
+            const categoryColors = {
+                'sales': '#667eea',
+                'hr': '#f5576c',
+                'finance': '#00f2fe',
+                'technical': '#fee140',
+                'supply_chain': '#330867',
+                'marketing': '#fed6e3',
+                'security': '#ff6a88',
+                'product': '#667eea',
+                'operations': '#764ba2'
+            };
+            
+            let html = `<div style="border-top: 2px solid #ddd; padding-top: 15px;">
+                <div style="color: #999; margin-bottom: 15px;">找到 <strong>${documents.length}</strong> 条相关企业知识</div>`;
+            
+            documents.forEach((doc, idx) => {
+                const bgColor = categoryColors[doc.category] || '#667eea';
+                const categoryName = {
+                    'sales': '💼 销售',
+                    'hr': '👥 HR',
+                    'finance': '💰 财务',
+                    'technical': '🔧 技术',
+                    'supply_chain': '🚚 供应链',
+                    'marketing': '📢 营销',
+                    'security': '🔐 安全',
+                    'product': '📦 产品',
+                    'operations': '⚙️ 运营'
+                }[doc.category] || doc.category;
+                
+                html += `
+                    <div style="background: #f9f9f9; padding: 15px; margin-bottom: 12px; border-radius: 8px; border-left: 4px solid ${bgColor};">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                    <span style="background: ${bgColor}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap;">${categoryName}</span>
+                                    <h4 style="margin: 0; color: #333; font-size: 14px;">${doc.title || '无标题'}</h4>
+                                </div>
+                                <p style="margin: 8px 0; color: #555; font-size: 13px; line-height: 1.5;">${(doc.content || '').substring(0, 200)}</p>
+                                <div style="display: flex; gap: 15px; font-size: 12px; color: #999; margin-top: 8px;">
+                                    <span>📌 来源: ${doc.source || '内部系统'}</span>
+                                    ${doc.tags && doc.tags.length > 0 ? `<span>🏷️ ${doc.tags.join(', ')}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            document.getElementById('integrationResults').innerHTML = html;
+        }
+
+        // 回车键事件
+        document.getElementById('questionInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') askQuestion();
+        });
+
+        document.getElementById('searchInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchKnowledge();
+        });
+
+        document.getElementById('integrationSearchInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchIntegrationKnowledge();
+        });
+
+        // ==================== 页面加载完成后初始化数据 ====================
+        addDebugLog('📋 脚本开始执行');
+        
+        // 直接获取并显示数据
+        async function initializeData() {
+            try {
+                addDebugLog('🚀 开始初始化...');
+                
+                // 加载历史记录
+                const histResp = await fetch('/api/qa/history/all');
+                const histData = await histResp.json();
+                addDebugLog('📊 历史记录API返回: ' + JSON.stringify(histData).substring(0, 80));
+                
+                if (histData.history && histData.history.length > 0) {
+                    const historyContainer = document.getElementById('responseArea');
+                    if (historyContainer) {
+                        let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+                        histData.history.forEach(item => {
+                            html += `<div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #667eea;">
+                                <div style="font-size: 13px; color: #333; font-weight: 500; margin-bottom: 5px;">Q: ${item.question}</div>
+                                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">A: ${item.answer.substring(0, 100)}...</div>
+                                <div style="font-size: 11px; color: #999;">置信度: ${(item.confidence*100).toFixed(0)}% | ${new Date(item.created_at).toLocaleDateString('zh-CN')}</div>
+                            </div>`;
+                        });
+                        html += '</div>';
+                        historyContainer.innerHTML = html;
+                        addDebugLog('✅ 历史记录已显示');
+                    }
+                }
+                
+                // 加载Prompt模板
+                const promptResp = await fetch('/api/prompts');
+                const promptData = await promptResp.json();
+                addDebugLog('📊 Prompt API返回: ' + JSON.stringify(promptData).substring(0, 80));
+                
+                if (promptData.templates && promptData.templates.length > 0) {
+                    const promptContainer = document.getElementById('promptContainer');
+                    if (promptContainer) {
+                        let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; padding: 15px;">';
+                        promptData.templates.forEach(prompt => {
+                            const icons = {'general_assistant': '💬', 'sales_analyst': '💼', 'hr_manager': '👥', 'tech_architect': '🏗️', 'financial_analyst': '💰', 'supply_chain_manager': '🚚'};
+                            const icon = icons[prompt.role] || '🤖';
+                            html += `<div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                <div style="font-size: 28px; margin-bottom: 8px;">${icon}</div>
+                                <div style="font-size: 14px; color: #333; font-weight: 600; margin-bottom: 6px;">${prompt.name}</div>
+                                <div style="font-size: 11px; color: #999; margin-bottom: 10px;">${prompt.description || '暂无描述'}</div>
+                                <div style="padding-top: 8px; border-top: 1px solid #f0f0f0;">
+                                    <span style="display: inline-block; background: #667eea; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px;">${prompt.role}</span>
+                                </div>
+                            </div>`;
+                        });
+                        html += '</div>';
+                        promptContainer.innerHTML = html;
+                        addDebugLog('✅ Prompt模板已显示');
+                    }
+                }
+                
+                addDebugLog('✅ 初始化完成！');
+            } catch (err) {
+                addDebugLog('❌ 错误: ' + err.message);
+                console.error(err);
+            }
+        }
+
+        // ==================== 知识库功能 ====================
+        
+        async function searchRagDocuments() {
+            const query = document.getElementById('ragSearchInput').value.trim();
+            const resultsContainer = document.getElementById('ragResults');
+            
+            if (!query) {
+                // 如果没有搜索词，显示全部文档
+                resultsContainer.innerHTML = '<p style="color: #999; text-align: center;">请输入搜索关键词</p>';
+                return;
+            }
+            
+            resultsContainer.innerHTML = '<p style="color: #999; text-align: center;">搜索中...</p>';
+            
+            try {
+                const response = await fetch('/api/rag/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, top_k: 10 })
+                });
+                const data = await response.json();
+                displayRagResults(data.documents || data.results || []);
+            } catch (error) {
+                console.error('知识库搜索失败:', error);
+                resultsContainer.innerHTML = '<p style="color: #f44336; text-align: center;">搜索失败，请重试</p>';
+            }
+        }
+        
+        function displayRagResults(results) {
+            const container = document.getElementById('ragResults');
+            
+            if (!results || results.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center;">未找到相关文档</p>';
+                return;
+            }
+            
+            let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
+            results.forEach((doc, idx) => {
+                const timestamp = doc.created_at ? new Date(doc.created_at).toLocaleDateString('zh-CN') : '未知日期';
+                const score = doc.similarity ? (doc.similarity * 100).toFixed(0) : doc.score ? (doc.score * 100).toFixed(0) : '100';
+                
+                html += `
+                    <div style="background: white; padding: 18px; border-radius: 8px; border-left: 4px solid #667eea; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 8px 0; color: #333; font-size: 14px; font-weight: 600;">${doc.title || '无标题'}</h4>
+                                <p style="margin: 0 0 10px 0; color: #666; font-size: 13px; line-height: 1.6; max-height: 80px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                                    ${doc.content || '暂无内容'}
+                                </p>
+                                <div style="display: flex; gap: 15px; font-size: 12px; color: #999;">
+                                    ${doc.source ? `<span>📄 来源: ${doc.source}</span>` : ''}
+                                    ${doc.tags && doc.tags.length > 0 ? `<span>🏷️ ${doc.tags.join(', ')}</span>` : ''}
+                                </div>
+                            </div>
+                            <div style="text-align: right; font-size: 12px; color: #999; white-space: nowrap; min-width: 100px;">
+                                <div style="color: #667eea; font-weight: 600; margin-bottom: 4px;">相似度: ${score}%</div>
+                                <div>${timestamp}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+            addDebugLog('✅ 已显示' + results.length + '条知识库结果');
+        }
+        
+        // ==================== 大模型管理功能 ====================
+        
+        async function loadLLMModels() {
+            const container = document.getElementById('llmContainer');
+            container.innerHTML = '<p style="color: #999; text-align: center; padding: 30px;">加载中...</p>';
+            
+            try {
+                const response = await fetch('/api/llm/models/list');
+                const data = await response.json();
+                
+                if (data.status === 'success' && data.models && data.models.length > 0) {
+                    displayLLMModels(data.models);
+                    addDebugLog('✅ 加载了' + data.models.length + '个大模型');
+                } else {
+                    container.innerHTML = '<p style="color: #999; text-align: center; padding: 30px;">暂无大模型配置</p>';
+                    addDebugLog('⚠️ 未找到大模型配置');
+                }
+            } catch (error) {
+                console.error('加载大模型列表失败:', error);
+                container.innerHTML = '<p style="color: #f44336; text-align: center; padding: 30px;">加载失败: ' + error.message + '</p>';
+                addDebugLog('❌ 加载大模型失败: ' + error.message);
+            }
+        }
+        
+        function displayLLMModels(models) {
+            const container = document.getElementById('llmContainer');
+            
+            if (!models || models.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center; padding: 30px;">暂无大模型配置</p>';
+                return;
+            }
+            
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 20px;">';
+            
+            models.forEach(model => {
+                const providers = {
+                    'openai': '🟢 OpenAI',
+                    'chatgpt': '🟢 ChatGPT',
+                    'chatanywhere': '🔵 ChatAnywhere',
+                    'local': '📦 本地模型',
+                    'azure': '☁️ Azure',
+                    'claude': '🤖 Claude',
+                    'cohere': '🌊 Cohere',
+                    'llama': '🦙 Llama'
+                };
+                
+                const providerIcon = providers[model.provider.toLowerCase()] || ('🤖 ' + model.provider);
+                const isDefault = model.is_default ? '★ 默认' : '';
+                const enabled = model.enabled ? '✅ 启用' : '⊘ 禁用';
+                
+                const typeLabel = model.model_type === 'api' ? 'API 接口' : '本地模型';
+                const statusBg = model.enabled ? '#e8f5e9' : '#ffebee';
+                const statusColor = model.enabled ? '#2e7d32' : '#c62828';
+                
+                html += `
+                    <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s;"
+                         onmouseover="this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.15)'; this.style.transform='translateY(-2px)'"
+                         onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'; this.style.transform='translateY(0)'">
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div style="font-size: 24px;">${providerIcon}</div>
+                            <div style="text-align: right;">
+                                ${isDefault ? `<span style="display: inline-block; background: #ffc107; color: #333; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 4px;">${isDefault}</span>` : ''}
+                                <span style="display: inline-block; background: ${statusBg}; color: ${statusColor}; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${enabled}</span>
+                            </div>
+                        </div>
+                        
+                        <h3 style="margin: 0 0 6px 0; color: #333; font-size: 16px; font-weight: 600;">${model.name}</h3>
+                        <p style="margin: 0 0 12px 0; color: #999; font-size: 12px;">${typeLabel}</p>
+                        
+                        ${model.description ? `<p style="margin: 0 0 12px 0; color: #666; font-size: 12px; line-height: 1.5;">${model.description}</p>` : ''}
+                        
+                        <div style="background: #f5f5f5; padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; color: #555;">
+                            <div><strong>提供商:</strong> ${model.provider}</div>
+                            ${model.endpoint ? `<div><strong>端点:</strong> ${model.endpoint.substring(0, 40)}...</div>` : ''}
+                            <div><strong>最大Token:</strong> ${model.max_tokens || 'N/A'}</div>
+                            <div><strong>温度:</strong> ${model.temperature || 'N/A'}</div>
+                            ${model.base_url ? `<div><strong>Base URL:</strong> ${model.base_url.substring(0, 40)}...</div>` : ''}
+                        </div>
+                        
+                        <div style="padding-top: 12px; border-top: 1px solid #f0f0f0; font-size: 11px; color: #999;">
+                            <div>🕐 创建于: ${model.created_at ? new Date(model.created_at).toLocaleDateString('zh-CN') : 'N/A'}</div>
+                            <div>✏️ 更新于: ${model.updated_at ? new Date(model.updated_at).toLocaleDateString('zh-CN') : 'N/A'}</div>
+                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #f0f0f0;">
+                                <span style="display: inline-block; background: #667eea; color: white; padding: 4px 12px; border-radius: 4px; margin-right: 4px;">🔒 只读</span>
+                                <span style="color: #999; font-size: 10px;">配置在数据库中，不可修改</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        // 页面加载时初始化数据
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const pageId = this.dataset.page;
+                if (pageId === 'rag') {
+                    // 知识库页面：加载所有文档
+                    loadRagDocuments();
+                } else if (pageId === 'llm') {
+                    // 大模型页面：加载模型列表
+                    loadLLMModels();
+                }
+            });
+        });
+        
+        // 初始化RAG文档（显示所有）
+        async function loadRagDocuments() {
+            const resultsContainer = document.getElementById('ragResults');
+            if (!resultsContainer) return;
+            
+            resultsContainer.innerHTML = '<p style="color: #999; text-align: center;">加载中...</p>';
+            
+            try {
+                const response = await fetch('/api/rag/documents');
+                const data = await response.json();
+                displayRagResults(data.documents || []);
+                addDebugLog('✅ 已加载' + (data.documents ? data.documents.length : 0) + '个知识库文档');
+            } catch (error) {
+                console.error('加载知识库文档失败:', error);
+                resultsContainer.innerHTML = '<p style="color: #f44336; text-align: center;">加载失败: ' + error.message + '</p>';
+                addDebugLog('❌ 加载知识库失败: ' + error.message);
+            }
+        }
+        
+        // 回车搜索知识库
+        document.getElementById('ragSearchInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchRagDocuments();
+        });
+
+        // 立即执行或延迟执行
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(initializeData, 50);
+            });
+        } else {
+            setTimeout(initializeData, 50);
+        }
+    </script>
+</body>
+</html>

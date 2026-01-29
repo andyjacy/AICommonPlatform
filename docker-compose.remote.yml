@@ -1,0 +1,148 @@
+version: '3.8'
+
+# ==================== 阿里云部署配置 ====================
+# 说明：该配置文件用于远程服务器部署，不包含 build 指令
+# 所有镜像都由本地导出并上传
+
+services:
+  # ==================== Web UI 服务（始终启动）====================
+  
+  web_ui:
+    image: aicommonplatform-web_ui:latest
+    container_name: ai_web_ui
+    ports:
+      - "9000:3000"
+    environment:
+      SERVICE_NAME: web_ui
+      QA_SERVICE_URL: http://qa_entry:8000
+      PROMPT_SERVICE_URL: http://prompt_service:8000
+      RAG_SERVICE_URL: http://rag_service:8000
+      AGENT_SERVICE_URL: http://agent_service:8000
+      INTEGRATION_SERVICE_URL: http://integration:8000
+      LLM_SERVICE_URL: http://llm_service:8000
+      LOG_LEVEL: INFO
+      DB_PATH: /app/data/web_ui.db
+    
+    volumes:
+      - ./data/web_ui:/app/data
+    
+    networks:
+      - ai_net
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    depends_on:
+      - qa_entry
+
+  # ==================== 微服务（默认启动）====================
+  
+  # QA Entry Service - 问答入口
+  qa_entry:
+    image: aicommonplatform-qa_entry:latest
+    container_name: ai_qa_entry
+    ports:
+      - "8001:8000"
+    environment:
+      SERVICE_NAME: qa_entry
+      LITE_MODE: "true"
+      PROMPT_SERVICE_URL: http://prompt_service:8000
+      RAG_SERVICE_URL: http://rag_service:8000
+      AGENT_SERVICE_URL: http://agent_service:8000
+      LLM_SERVICE_URL: http://llm_service:8000
+      LOG_LEVEL: INFO
+    networks:
+      - ai_net
+    restart: unless-stopped
+    depends_on:
+      - prompt_service
+      - rag_service
+      - llm_service
+
+  # Prompt Service - Prompt管理层
+  prompt_service:
+    image: aicommonplatform-prompt_service:latest
+    container_name: ai_prompt_service
+    ports:
+      - "8002:8000"
+    environment:
+      SERVICE_NAME: prompt_service
+      LITE_MODE: "true"
+      LOG_LEVEL: INFO
+    networks:
+      - ai_net
+    restart: unless-stopped
+
+  # RAG Service - RAG知识库
+  rag_service:
+    image: aicommonplatform-rag_service:latest
+    container_name: ai_rag_service
+    ports:
+      - "8003:8000"
+    environment:
+      SERVICE_NAME: rag_service
+      LITE_MODE: "true"
+      LOG_LEVEL: INFO
+    volumes:
+      - ./data/documents:/app/data
+    networks:
+      - ai_net
+    restart: unless-stopped
+
+  # Agent Service - Agent执行层
+  agent_service:
+    image: aicommonplatform-agent_service:latest
+    container_name: ai_agent_service
+    ports:
+      - "8004:8000"
+    environment:
+      SERVICE_NAME: agent_service
+      LITE_MODE: "true"
+      LOG_LEVEL: INFO
+    networks:
+      - ai_net
+    restart: unless-stopped
+
+  # Integration Service - 企业系统集成
+  integration:
+    image: aicommonplatform-integration:latest
+    container_name: ai_integration
+    ports:
+      - "8005:8000"
+    environment:
+      SERVICE_NAME: integration
+      LITE_MODE: "true"
+      LOG_LEVEL: INFO
+    networks:
+      - ai_net
+    restart: unless-stopped
+
+  # LLM Service - 大模型接口
+  llm_service:
+    image: aicommonplatform-llm_service:latest
+    container_name: ai_llm_service
+    ports:
+      - "8006:8000"
+    environment:
+      SERVICE_NAME: llm_service
+      LITE_MODE: "true"
+      LOG_LEVEL: INFO
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_API_URL: ${OPENAI_API_URL:-https://api.openai.com/v1}
+      CHATANYWHERE_API_KEY: ${CHATANYWHERE_API_KEY:-}
+      CHATANYWHERE_API_URL: ${CHATANYWHERE_API_URL:-https://api.chatanywhere.com.cn/v1}
+      LLM_MODEL: ${LLM_MODEL:-gpt-3.5-turbo}
+    networks:
+      - ai_net
+    restart: unless-stopped
+
+networks:
+  ai_net:
+    driver: bridge

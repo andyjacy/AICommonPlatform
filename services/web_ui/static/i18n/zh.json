@@ -1,0 +1,103 @@
+{
+  "app": {
+    "title": "AI 通用平台",
+    "subtitle": "智能问答系统"
+  },
+  "navigation": {
+    "home": "首页",
+    "qa": "问答",
+    "history": "历史",
+    "settings": "设置",
+    "logout": "登出"
+  },
+  "auth": {
+    "login": "登录",
+    "logout": "登出",
+    "username": "用户名",
+    "password": "密码",
+    "remember_me": "记住我",
+    "forgot_password": "忘记密码?",
+    "sign_up": "注册",
+    "login_success": "登录成功",
+    "logout_success": "登出成功",
+    "invalid_credentials": "用户名或密码错误",
+    "token_invalid": "令牌无效或已过期"
+  },
+  "qa": {
+    "title": "智能问答",
+    "question_placeholder": "请输入您的问题...",
+    "ask_button": "提问",
+    "asking": "正在处理...",
+    "answer": "回答",
+    "confidence": "置信度",
+    "sources": "参考资料",
+    "execution_time": "执行时间",
+    "no_answer": "抱歉，暂时无法获取回答，请稍后重试。"
+  },
+  "history": {
+    "title": "问答历史",
+    "empty": "暂无问答记录",
+    "question": "问题",
+    "answer": "回答",
+    "time": "时间",
+    "type": "类型",
+    "view_details": "查看详情",
+    "delete": "删除",
+    "export": "导出"
+  },
+  "trace": {
+    "title": "调用链追踪",
+    "stage": "阶段",
+    "service": "服务",
+    "status": "状态",
+    "duration": "耗时",
+    "data": "数据",
+    "steps": {
+      "input_processing": "输入处理",
+      "intent_recognition": "意图识别",
+      "knowledge_retrieval": "知识检索",
+      "vectorization": "向量化",
+      "vector_search": "向量搜索",
+      "context_enhancement": "上下文增强",
+      "data_query": "数据查询",
+      "permission_check": "权限校验",
+      "prompt_assembly": "Prompt 组装",
+      "model_selection": "模型选择",
+      "llm_call": "LLM 调用",
+      "api_request": "API 请求",
+      "result_processing": "结果处理",
+      "formatting": "格式化",
+      "response_return": "响应返回"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "profile": "个人资料",
+    "language": "语言",
+    "theme": "主题",
+    "notifications": "通知",
+    "privacy": "隐私",
+    "security": "安全",
+    "language_zh": "中文",
+    "language_en": "English",
+    "save": "保存",
+    "saved": "已保存",
+    "language_changed": "语言已切换"
+  },
+  "status": {
+    "success": "成功",
+    "error": "错误",
+    "pending": "进行中",
+    "warning": "警告",
+    "loading": "加载中..."
+  },
+  "messages": {
+    "loading": "加载中...",
+    "error_loading": "加载失败，请重试",
+    "connection_error": "连接失败",
+    "timeout": "请求超时",
+    "server_error": "服务器错误",
+    "unauthorized": "未授权",
+    "not_found": "未找到"
+  }
+}

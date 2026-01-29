@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test LLM Update</title>
+</head>
+<body>
+    <h1>Test LLM Model Update</h1>
+    
+    <h2>Form Fields</h2>
+    <input type="text" id="llmName" value="Test Model">
+    <input type="text" id="llmProvider" value="OpenAI">
+    <input type="text" id="llmType" value="api">
+    <input type="text" id="llmEndpoint" value="https://api.openai.com/v1/chat/completions">
+    <input type="password" id="llmApiKey" value="sk-test-123">
+    <input type="text" id="llmBaseUrl" value="">
+    <input type="number" id="llmMaxTokens" value="2048">
+    <input type="number" id="llmTemperature" value="0.7">
+    <input type="text" id="llmDescription" value="Test description">
+    
+    <h2>Actions</h2>
+    <button onclick="testEdit()">Test Edit (ID=2)</button>
+    <button onclick="testCreate()">Test Create</button>
+    <button onclick="testSave()">Test Save</button>
+    
+    <h2>Debug Output</h2>
+    <pre id="debug" style="background: #f0f0f0; padding: 10px; height: 300px; overflow-y: auto;"></pre>
+    
+    <script>
+        const debugLog = [];
+        
+        function log(msg) {
+            debugLog.push(msg);
+            document.getElementById('debug').textContent = debugLog.join('\n');
+            console.log(msg);
+        }
+        
+        function testEdit() {
+            window.currentEditingModelId = 2;
+            log('✓ Set currentEditingModelId = 2');
+        }
+        
+        function testCreate() {
+            window.currentEditingModelId = null;
+            log('✓ Clear currentEditingModelId (create mode)');
+        }
+        
+        async function testSave() {
+            const name = document.getElementById('llmName').value.trim();
+            const provider = document.getElementById('llmProvider').value;
+            const modelType = document.getElementById('llmType').value;
+            const endpoint = document.getElementById('llmEndpoint').value.trim();
+            const apiKey = document.getElementById('llmApiKey').value.trim();
+            const baseUrl = document.getElementById('llmBaseUrl').value.trim();
+            const maxTokens = parseInt(document.getElementById('llmMaxTokens').value) || 2048;
+            const temperature = parseFloat(document.getElementById('llmTemperature').value) || 0.7;
+            const description = document.getElementById('llmDescription').value.trim();
+
+            log('[DEBUG] Form values:');
+            log(`  name: "${name}" (${typeof name})`);
+            log(`  provider: "${provider}" (${typeof provider})`);
+            log(`  modelType: "${modelType}" (${typeof modelType})`);
+            log(`  endpoint: "${endpoint}" (${typeof endpoint})`);
+            log(`  apiKey: "${apiKey}" (${typeof apiKey})`);
+            log(`  baseUrl: "${baseUrl}" (${typeof baseUrl})`);
+            log(`  maxTokens: ${maxTokens} (${typeof maxTokens})`);
+            log(`  temperature: ${temperature} (${typeof temperature})`);
+            log(`  description: "${description}" (${typeof description})`);
+
+            if (!name || !provider) {
+                log('ERROR: Missing name or provider');
+                return;
+            }
+
+            const isEditing = window.currentEditingModelId;
+            const method = isEditing ? 'PUT' : 'POST';
+            const url = isEditing ? `/api/llm/models/${window.currentEditingModelId}` : '/api/llm/models';
+
+            log(`\n[REQUEST] ${method} ${url}`);
+            log(`  currentEditingModelId: ${window.currentEditingModelId}`);
+
+            let requestData = {};
+            
+            if (isEditing) {
+                requestData = {
+                    provider, 
+                    model_type: modelType,
+                    max_tokens: maxTokens,
+                    temperature
+                };
+                if (endpoint) requestData.endpoint = endpoint;
+                if (apiKey) requestData.api_key = apiKey;
+                if (baseUrl) requestData.base_url = baseUrl;
+                if (description) requestData.description = description;
+            } else {
+                requestData = {
+                    name, 
+                    provider, 
+                    model_type: modelType,
+                    max_tokens: maxTokens,
+                    temperature
+                };
+                if (endpoint) requestData.endpoint = endpoint;
+                if (apiKey) requestData.api_key = apiKey;
+                if (baseUrl) requestData.base_url = baseUrl;
+                if (description) requestData.description = description;
+            }
+
+            const requestBody = JSON.stringify(requestData);
+            log(`\n[PAYLOAD] ${requestBody}`);
+            
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: requestBody
+                });
+                
+                log(`\n[RESPONSE] ${response.status} ${response.statusText}`);
+                const data = await response.json();
+                log('[RESPONSE DATA]');
+                log(JSON.stringify(data, null, 2));
+            } catch (error) {
+                log(`[ERROR] ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

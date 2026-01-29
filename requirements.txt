@@ -1,0 +1,24 @@
+# AI Common Platform - 全局依赖
+
+fastapi==0.104.1
+uvicorn==0.24.0
+pydantic==2.4.2
+pydantic-settings==2.0.3
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+redis==5.0.0
+python-dotenv==1.0.0
+aiohttp==3.9.1
+httpx==0.25.0
+requests==2.31.0
+numpy==1.24.3
+pymilvus==2.3.0
+python-json-logger==2.0.7
+PyYAML==6.0.1
+
+# 可选的高级功能
+# celery==5.3.4  # 异步任务队列
+# prometheus-client==0.18.0  # Prometheus指标
+# elasticsearch==7.17.0  # Elasticsearch
+# PyPDF2==3.0.1  # PDF处理
+# python-docx==0.8.11  # Word文档处理
