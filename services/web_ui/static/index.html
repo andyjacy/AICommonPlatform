@@ -367,13 +367,13 @@
     <div class="navbar">
         <div class="navbar-brand">🤖 AI Platform</div>
         <ul class="nav-menu">
-            <li class="nav-item active" data-page="qa">💬 问答中心</li>
-            <li class="nav-item" data-page="prompt">📝 Prompt 管理</li>
-            <li class="nav-item" data-page="rag">📚 知识库</li>
-            <li class="nav-item" data-page="agent">🤖 Agent 工具</li>
-            <li class="nav-item" data-page="integration">🔗 系统集成</li>
-            <li class="nav-item" data-page="llm">🧠 大模型</li>
-            <li class="nav-item" data-page="monitor">📊 监控面板</li>
+            <li class="nav-item active" data-page="qa" data-i18n="navbar.qa">💬 问答中心</li>
+            <li class="nav-item" data-page="prompt" data-i18n="navbar.prompt">📝 Prompt 管理</li>
+            <li class="nav-item" data-page="rag" data-i18n="navbar.rag">📚 知识库</li>
+            <li class="nav-item" data-page="agent" data-i18n="navbar.agent">🤖 Agent 工具</li>
+            <li class="nav-item" data-page="integration" data-i18n="navbar.integration">🔗 系统集成</li>
+            <li class="nav-item" data-page="llm" data-i18n="navbar.llm">🧠 大模型</li>
+            <li class="nav-item" data-page="monitor" data-i18n="navbar.monitor">📊 监控面板</li>
         </ul>
         <div class="language-switcher">
             <button class="language-btn active" data-lang="zh" onclick="setLanguage('zh')">中文</button>
@@ -417,37 +417,37 @@
 
                     <div id="history-tab" class="tab-content active">
                         <div id="responseArea">
-                            <p style="color: #999; text-align: center;">提问后，回答将显示在这里</p>
+                            <p style="color: #999; text-align: center;" data-i18n="qa.afterAsk">提问后，回答将显示在这里</p>
                         </div>
                     </div>
 
                     <div id="search-tab" class="tab-content">
                         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                            <input type="text" id="searchInput" placeholder="搜索知识库..." style="flex: 1;">
-                            <button class="btn" onclick="searchKnowledge()">搜索</button>
+                            <input type="text" id="searchInput" data-i18n-placeholder="rag.search" placeholder="搜索知识库..." style="flex: 1;">
+                            <button class="btn" data-i18n="rag.searchBtn" onclick="searchKnowledge()">搜索</button>
                         </div>
                         <div id="searchResults">
-                            <p style="color: #999; text-align: center;">搜索结果将显示在这里</p>
+                            <p style="color: #999; text-align: center;" data-i18n="qa.searchResults">搜索结果将显示在这里</p>
                         </div>
                     </div>
 
                     <div id="trace-tab" class="tab-content">
                         <div id="traceArea">
-                            <p style="color: #999; text-align: center;">勾选"显示调用链"后，提问时将显示完整的处理流程</p>
+                            <p style="color: #999; text-align: center;" data-i18n="qa.traceMessage">勾选"显示调用链"后，提问时将显示完整的处理流程</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="sidebar">
                     <div class="card">
-                        <h3>🟢 服务状态</h3>
+                        <h3 data-i18n="qa.serviceStatus">🟢 服务状态</h3>
                         <div style="font-size: 13px; color: #666;">
-                            <div style="margin-bottom: 10px;">✅ 所有服务正常</div>
+                            <div style="margin-bottom: 10px;" data-i18n="qa.allServicesOk">✅ 所有服务正常</div>
                         </div>
                     </div>
 
                     <div class="card">
-                        <h3>⚙️ 系统信息</h3>
+                        <h3 data-i18n="qa.systemInfo">⚙️ 系统信息</h3>
                         <div style="font-size: 13px; color: #666;">
                             <div style="margin-bottom: 8px;">版本: 1.0.0</div>
                             <div>环境: 轻量版</div>
@@ -460,52 +460,52 @@
         <!-- 其他页面 (简化版) -->
         <div class="page" data-page-id="prompt">
             <div class="page-header">
-                <h1>📝 Prompt 管理</h1>
-                <p>查看和管理 AI 助手角色配置</p>
+                <h1 data-i18n="prompt.management">📝 Prompt 管理</h1>
+                <p data-i18n="prompt.description">查看和管理 AI 助手角色配置</p>
             </div>
             <div class="card" id="promptContainer">
-                <p style="color: #999; text-align: center; padding: 30px;">加载中...</p>
+                <p style="color: #999; text-align: center; padding: 30px;" data-i18n="common.loading">加载中...</p>
             </div>
         </div>
 
         <div class="page" data-page-id="rag">
             <div class="page-header">
-                <h1>📚 知识库管理</h1>
-                <p>企业内部知识库，支持文档搜索和检索</p>
+                <h1 data-i18n="rag.management">📚 知识库管理</h1>
+                <p data-i18n="rag.description">企业内部知识库，支持文档搜索和检索</p>
             </div>
             <div class="card">
                 <div style="margin-bottom: 20px;">
-                    <input type="text" id="ragSearchInput" placeholder="搜索知识库文档..." 
+                    <input type="text" id="ragSearchInput" data-i18n-placeholder="rag.search" placeholder="搜索知识库文档..." 
                            style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; margin-bottom: 10px;">
                     <button class="btn" onclick="searchRagDocuments()" style="width: 100%;">🔍 搜索</button>
                 </div>
                 <div id="ragResults" style="margin-top: 20px;">
-                    <p style="color: #999; text-align: center;">加载中...</p>
+                    <p style="color: #999; text-align: center;" data-i18n="common.loading">加载中...</p>
                 </div>
             </div>
         </div>
 
         <div class="page" data-page-id="agent">
             <div class="page-header">
-                <h1>🤖 Agent 工具</h1>
-                <p>AI Agent 可以使用的工具和集成能力</p>
+                <h1 data-i18n="agent.title">🤖 Agent 工具</h1>
+                <p data-i18n="agent.description">AI Agent 可以使用的工具和集成能力</p>
             </div>
             <div class="card">
-                <p style="color: #999;">Agent 工具功能开发中...</p>
+                <p style="color: #999;" data-i18n="agent.noAgents">Agent 工具功能开发中...</p>
             </div>
         </div>
 
         <div class="page" data-page-id="integration">
             <div class="page-header">
-                <h1>🔗 系统集成</h1>
-                <p>企业各类系统的知识库展示和智能查询</p>
+                <h1 data-i18n="integration.title">🔗 系统集成</h1>
+                <p data-i18n="integration.description">企业各类系统的知识库展示和智能查询</p>
             </div>
             
             <!-- 知识库查询面板 -->
             <div class="card">
-                <h3>📚 企业知识库</h3>
+                <h3 data-i18n="rag.documents">📚 企业知识库</h3>
                 <div style="margin-bottom: 15px;">
-                    <input type="text" id="integrationSearchInput" placeholder="搜索企业知识库（如：销售、HR、财务、技术等）" 
+                    <input type="text" id="integrationSearchInput" data-i18n-placeholder="integration.search" placeholder="搜索企业知识库（如：销售、HR、财务、技术等）" 
                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
                     <button onclick="searchIntegrationKnowledge()" 
                             style="margin-top: 10px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">
@@ -602,11 +602,11 @@
 
         <div class="page" data-page-id="monitor">
             <div class="page-header">
-                <h1>📊 监控面板</h1>
-                <p>系统实时监控和性能统计</p>
+                <h1 data-i18n="monitor.title">📊 监控面板</h1>
+                <p data-i18n="monitor.description">系统实时监控和性能统计</p>
             </div>
             <div class="card">
-                <p style="color: #999;">监控面板功能开发中...</p>
+                <p style="color: #999;" data-i18n="monitor.developing">监控面板功能开发中...</p>
             </div>
         </div>
     </div>
@@ -617,12 +617,13 @@
             zh: {
                 // 导航和通用
                 'navbar.title': 'AI Common Platform v2.1.0',
-                'navbar.home': '🏠 首页',
-                'navbar.qa': '💬 问答',
+                'navbar.qa': '💬 问答中心',
+                'navbar.prompt': '📝 Prompt 管理',
                 'navbar.rag': '📚 知识库',
-                'navbar.llm': '🧠 大模型',
-                'navbar.prompt': '✨ 提示词',
+                'navbar.agent': '🤖 Agent 工具',
                 'navbar.integration': '🔗 系统集成',
+                'navbar.llm': '🧠 大模型',
+                'navbar.monitor': '📊 监控面板',
                 'navbar.language': '语言',
                 
                 // 问答页面
@@ -712,6 +713,86 @@
                 'llm.configDbTip': '这些模型配置在数据库中（只读）',
                 'llm.defaultModel': '默认使用',
                 
+                // 问答页面 - 额外的tab标签和消息
+                'qa.answerHistory': '回答历史',
+                'qa.knowledgeSearch': '知识库搜索',
+                'qa.callChainTrace': '调用链追踪',
+                'qa.afterAsk': '提问后，回答将显示在这里',
+                'qa.searchResults': '搜索结果将显示在这里',
+                'qa.traceMessage': '勾选"显示调用链"后，提问时将显示完整的处理流程',
+                'qa.serviceStatus': '🟢 服务状态',
+                'qa.allServicesOk': '✅ 所有服务正常',
+                'qa.systemInfo': '⚙️ 系统信息',
+                
+                // Prompt 页面
+                'prompt.management': '📝 Prompt 管理',
+                'prompt.description': '管理和优化 AI 提示词模板',
+                'prompt.templates': 'Prompt 模板库',
+                'prompt.noTemplates': '暂无Prompt模板',
+                'prompt.role': '角色',
+                'prompt.noDescription': '暂无描述',
+                'prompt.add': '添加模板',
+                'prompt.edit': '编辑',
+                'prompt.delete': '删除',
+                
+                // RAG 页面 - 额外的标签
+                'rag.documents': '知识库文档',
+                'rag.noDocuments': '暂无知识库文档',
+                'rag.uploadDocument': '上传文档',
+                'rag.documentTitle': '文档标题',
+                'rag.documentContent': '文档内容',
+                
+                // Agent 页面
+                'agent.title': '🤖 Agent 工具',
+                'agent.description': '智能代理工具和自动化工作流',
+                'agent.noAgents': '暂无Agent工具',
+                
+                // 系统集成页面 - 额外的标签
+                'integration.title': '🔗 系统集成',
+                'integration.description': '连接和管理企业知识系统',
+                'integration.systems': '已连接系统',
+                'integration.erp': 'ERP系统',
+                'integration.crm': 'CRM系统',
+                'integration.api': 'API',
+                'integration.status': '状态',
+                'integration.frequency': '更新频率',
+                
+                // 监控面板
+                'monitor.title': '📊 监控面板',
+                'monitor.description': '实时监控系统状态和性能指标',
+                'monitor.developing': '监控面板功能开发中...',
+                
+                // 动态内容翻译
+                'dynamic.noHistory': '暂无问答记录',
+                'dynamic.confidence': '置信度',
+                'dynamic.unknownTime': '未知时间',
+                'dynamic.sales': '💼 销售',
+                'dynamic.hr': '👥 HR',
+                'dynamic.technical': '🏗️ 技术',
+                'dynamic.finance': '💰 财务',
+                'dynamic.supplyChain': '🚚 供应链',
+                'dynamic.general': '💬 通用',
+                'dynamic.question': '问题',
+                'dynamic.answer': '回答',
+                'dynamic.details': '详情',
+                'dynamic.loading': '加载中...',
+                'dynamic.noTrace': '尚无调用链数据。请先提出一个问题来生成追踪信息。',
+                'dynamic.traceSteps': '🔄 处理步骤及详细信息',
+                'dynamic.traceId': '追踪 ID',
+                'dynamic.totalSteps': '总步骤数',
+                'dynamic.duration': '总耗时',
+                'dynamic.documents': '相关文档',
+                'dynamic.dataInfo': '数据信息',
+                'dynamic.step': '步骤',
+                'dynamic.noDocuments': '未找到相关文档',
+                'dynamic.retrievalStatus': '检索状态',
+                'dynamic.success': '成功',
+                'dynamic.failed': '失败',
+                'dynamic.searchNoResults': '搜索结果将显示在这里',
+                'dynamic.percentage': '%',
+                'dynamic.date': '日期',
+                'dynamic.time': '时间',
+                
                 // 其他
                 'common.loading': '加载中...',
                 'common.success': '成功',
@@ -722,12 +803,13 @@
             en: {
                 // Navigation and General
                 'navbar.title': 'AI Common Platform v2.1.0',
-                'navbar.home': '🏠 Home',
-                'navbar.qa': '💬 Q&A',
+                'navbar.qa': '💬 Q&A Center',
+                'navbar.prompt': '📝 Prompt Management',
                 'navbar.rag': '📚 Knowledge Base',
+                'navbar.agent': '🤖 Agent Tools',
+                'navbar.integration': '🔗 System Integration',
                 'navbar.llm': '🧠 LLM Models',
-                'navbar.prompt': '✨ Prompt',
-                'navbar.integration': '🔗 Integration',
+                'navbar.monitor': '📊 Monitor Panel',
                 'navbar.language': 'Language',
                 
                 // Q&A Page
@@ -752,6 +834,17 @@
                 'qa.documentFound': 'Retrieved {{count}} relevant documents',
                 'qa.noDocument': 'No relevant documents found',
                 'qa.retrievalError': 'Retrieval Error',
+                
+                // Q&A Page - Additional tab labels and messages
+                'qa.answerHistory': 'Answer History',
+                'qa.knowledgeSearch': 'Knowledge Search',
+                'qa.callChainTrace': 'Call Chain Trace',
+                'qa.afterAsk': 'After asking, the answer will be displayed here',
+                'qa.searchResults': 'Search results will be displayed here',
+                'qa.traceMessage': 'After checking "Show Call Chain", the complete processing flow will be displayed when asking',
+                'qa.serviceStatus': '🟢 Service Status',
+                'qa.allServicesOk': '✅ All Services Normal',
+                'qa.systemInfo': '⚙️ System Information',
                 
                 // Knowledge Base Page
                 'rag.search': 'Search knowledge base...',
@@ -790,12 +883,74 @@
                 'prompt.noTemplates': 'No prompt templates',
                 'prompt.role': 'Role',
                 'prompt.noDescription': 'No description',
+                'prompt.management': '📝 Prompt Management',
+                'prompt.description': 'Manage and optimize AI prompt templates',
+                'prompt.templates': 'Prompt Template Library',
+                'prompt.add': 'Add Template',
+                'prompt.edit': 'Edit',
+                'prompt.delete': 'Delete',
+                
+                // RAG Page - Additional labels
+                'rag.documents': 'Knowledge Base Documents',
+                'rag.noDocuments': 'No knowledge base documents',
+                'rag.uploadDocument': 'Upload Document',
+                'rag.documentTitle': 'Document Title',
+                'rag.documentContent': 'Document Content',
+                
+                // Agent Page
+                'agent.title': '🤖 Agent Tools',
+                'agent.description': 'Intelligent agent tools and automated workflows',
+                'agent.noAgents': 'No agent tools',
                 
                 // System Integration Page
                 'integration.search': 'Search enterprise knowledge...',
                 'integration.searchBtn': 'Search',
                 'integration.category': 'By Category',
                 'integration.noResults': '⚠️ No relevant enterprise knowledge found',
+                'integration.title': '🔗 System Integration',
+                'integration.description': 'Connect and manage enterprise knowledge systems',
+                'integration.systems': 'Connected Systems',
+                'integration.erp': 'ERP System',
+                'integration.crm': 'CRM System',
+                'integration.api': 'API',
+                'integration.status': 'Status',
+                'integration.frequency': 'Update Frequency',
+                
+                // Monitor Panel
+                'monitor.title': '📊 Monitor Panel',
+                'monitor.description': 'Monitor system status and performance metrics in real-time',
+                'monitor.developing': 'Monitor panel under development...',
+                
+                // Dynamic Content Translations
+                'dynamic.noHistory': 'No answer history',
+                'dynamic.confidence': 'Confidence',
+                'dynamic.unknownTime': 'Unknown time',
+                'dynamic.sales': '💼 Sales',
+                'dynamic.hr': '👥 HR',
+                'dynamic.technical': '🏗️ Technical',
+                'dynamic.finance': '💰 Finance',
+                'dynamic.supplyChain': '🚚 Supply Chain',
+                'dynamic.general': '💬 General',
+                'dynamic.question': 'Question',
+                'dynamic.answer': 'Answer',
+                'dynamic.details': 'Details',
+                'dynamic.loading': 'Loading...',
+                'dynamic.noTrace': 'No call chain data. Please ask a question first.',
+                'dynamic.traceSteps': '🔄 Processing Steps and Details',
+                'dynamic.traceId': 'Trace ID',
+                'dynamic.totalSteps': 'Total Steps',
+                'dynamic.duration': 'Total Duration',
+                'dynamic.documents': 'Related Documents',
+                'dynamic.dataInfo': 'Data Information',
+                'dynamic.step': 'Step',
+                'dynamic.noDocuments': 'No relevant documents found',
+                'dynamic.retrievalStatus': 'Retrieval Status',
+                'dynamic.success': 'Success',
+                'dynamic.failed': 'Failed',
+                'dynamic.searchNoResults': 'Search results will be displayed here',
+                'dynamic.percentage': '%',
+                'dynamic.date': 'Date',
+                'dynamic.time': 'Time',
                 'integration.found': 'Found',
                 'integration.items': 'relevant enterprise knowledge',
                 'integration.source': 'Source',
@@ -853,12 +1008,18 @@
             // 更新所有带有 data-i18n 属性的元素
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
+                const translatedText = t(key);
+                
                 if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'submit')) {
-                    el.value = t(key);
+                    el.value = translatedText;
                 } else if (el.tagName === 'TEXTAREA') {
-                    el.placeholder = t(key);
+                    el.placeholder = translatedText;
+                } else if (el.tagName === 'LI' || el.classList.contains('nav-item')) {
+                    // 对于导航栏项，保留emoji但更新文本
+                    const emoji = el.textContent.match(/^[\ud83c-\ud83f][\udc00-\udfff]|\ud83d[\ude00-\ude4f]/)?.[0] || '';
+                    el.textContent = emoji ? emoji + ' ' + translatedText.replace(/^[\ud83c-\ud83f][\udc00-\udfff]|\ud83d[\ude00-\ude4f]\s*/, '') : translatedText;
                 } else {
-                    el.textContent = t(key);
+                    el.textContent = translatedText;
                 }
             });
             
@@ -963,21 +1124,21 @@
             const container = responseArea || historyContainer;
 
             if (history.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">暂无问答记录</div>';
+                container.innerHTML = `<div style="text-align: center; padding: 40px; color: #999;">${t('dynamic.noHistory')}</div>`;
                 return;
             }
 
             let html = '<div style="display: flex; flex-direction: column; gap: 15px; padding: 10px;">';
             history.forEach((item, idx) => {
-                const timestamp = item.created_at ? new Date(item.created_at).toLocaleString('zh-CN') : '未知时间';
-                const confidence = item.confidence ? (item.confidence * 100).toFixed(0) + '%' : 'N/A';
+                const timestamp = item.created_at ? new Date(item.created_at).toLocaleString(currentLanguage === 'zh' ? 'zh-CN' : 'en-US') : t('dynamic.unknownTime');
+                const confidence = item.confidence ? (item.confidence * 100).toFixed(0) + t('dynamic.percentage') : 'N/A';
                 const typeLabel = {
-                    'sales_analysis': '💼 销售',
-                    'hr_policy': '👥 HR',
-                    'technical_design': '🏗️ 技术',
-                    'finance_budget': '💰 财务',
-                    'supply_chain': '🚚 供应链',
-                    'general': '💬 通用'
+                    'sales_analysis': t('dynamic.sales'),
+                    'hr_policy': t('dynamic.hr'),
+                    'technical_design': t('dynamic.technical'),
+                    'finance_budget': t('dynamic.finance'),
+                    'supply_chain': t('dynamic.supplyChain'),
+                    'general': t('dynamic.general')
                 }[item.question_type] || '📌 ' + item.question_type;
                 
                 html += `
@@ -990,11 +1151,11 @@
                                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                                     <span style="background: #667eea; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; font-weight: 500;">${typeLabel}</span>
                                 </div>
-                                <h4 style="margin: 0 0 8px 0; color: #333; font-size: 14px; font-weight: 600;">Q: ${item.question}</h4>
-                                <p style="margin: 0; color: #666; font-size: 13px; line-height: 1.6; max-height: 60px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">A: ${item.answer}</p>
+                                <h4 style="margin: 0 0 8px 0; color: #333; font-size: 14px; font-weight: 600;">${t('dynamic.question')}: ${item.question}</h4>
+                                <p style="margin: 0; color: #666; font-size: 13px; line-height: 1.6; max-height: 60px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${t('dynamic.answer')}: ${item.answer}</p>
                             </div>
                             <div style="text-align: right; font-size: 12px; color: #999; white-space: nowrap; min-width: 100px;">
-                                <div style="color: #667eea; font-weight: 600; margin-bottom: 4px;">置信度: ${confidence}</div>
+                                <div style="color: #667eea; font-weight: 600; margin-bottom: 4px;">${t('dynamic.confidence')}: ${confidence}</div>
                                 <div>${timestamp.split(' ')[0]}</div>
                                 <div>${timestamp.split(' ')[1]}</div>
                             </div>
@@ -1282,14 +1443,14 @@
             
             if (!trace) {
                 console.error('❌ No trace data available');
-                const message = '尚无调用链数据。请先提出一个问题来生成追踪信息。';
+                const message = t('dynamic.noTrace');
                 document.getElementById('traceArea').innerHTML = `<div style="background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 15px; border-radius: 6px; text-align: center;">ℹ️ ${message}</div>`;
                 return;
             }
             
             if (!trace.steps || trace.steps.length === 0) {
                 console.error('❌ No steps in trace data');
-                document.getElementById('traceArea').innerHTML = '<div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 6px;">⚠️ 调用链数据为空或无法解析</div>';
+                document.getElementById('traceArea').innerHTML = '<div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 6px;">⚠️ ' + t('dynamic.noTrace') + '</div>';
                 return;
             }
 
@@ -1312,24 +1473,24 @@
             
             let html = `
                 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                    <div style="font-weight: 600; margin-bottom: 15px; font-size: 16px;">📊 调用链追踪详情</div>
+                    <div style="font-weight: 600; margin-bottom: 15px; font-size: 16px;">${t('dynamic.traceSteps').split(' ')[0]} ${t('qa.traceDetail')}</div>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; font-size: 13px;">
                         <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px;">
-                            <div style="opacity: 0.8;">追踪 ID</div>
+                            <div style="opacity: 0.8;">${t('dynamic.traceId')}</div>
                             <div style="font-weight: 600; font-size: 14px;">${trace.trace_id || 'N/A'}</div>
                         </div>
                         <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px;">
-                            <div style="opacity: 0.8;">步骤数</div>
-                            <div style="font-weight: 600; font-size: 14px;">${trace.steps.length} 步</div>
+                            <div style="opacity: 0.8;">${t('dynamic.totalSteps')}</div>
+                            <div style="font-weight: 600; font-size: 14px;">${trace.steps.length} ${currentLanguage === 'zh' ? '步' : 'steps'}</div>
                         </div>
                         <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px;">
-                            <div style="opacity: 0.8;">耗时</div>
+                            <div style="opacity: 0.8;">${t('qa.duration')}</div>
                             <div style="font-weight: 600; font-size: 14px;">${trace.total_time || '0.5s'}</div>
                         </div>
                     </div>
                 </div>
                 <div style="margin-bottom: 20px;">
-                    <div style="font-weight: 600; margin-bottom: 15px; color: #333; font-size: 15px;">🔄 处理步骤及详细信息</div>
+                    <div style="font-weight: 600; margin-bottom: 15px; color: #333; font-size: 15px;">${t('dynamic.traceSteps')}</div>
             `;
 
             trace.steps.forEach((step, idx) => {
@@ -1379,8 +1540,8 @@
                 // 检查向量化阶段
                 if (step.stage && step.stage.includes('向量化') && step.data) {
                     dataInfo += `<div style="background: #e3f2fd; border-left: 3px solid #2196f3; padding: 8px; margin: 8px 0; border-radius: 4px;">`;
-                    dataInfo += `📐 <strong>向量转换成功</strong><br>`;
-                    dataInfo += `<span style="font-size: 11px;">向量维度: ${step.data.vector_dim || 'N/A'} | 模型: ${step.data.embedding_model || 'N/A'}</span></div>`;
+                    dataInfo += `📐 <strong>${currentLanguage === 'zh' ? '向量转换成功' : 'Vector Conversion Successful'}</strong><br>`;
+                    dataInfo += `<span style="font-size: 11px;">${currentLanguage === 'zh' ? '向量维度' : 'Vector Dimension'}: ${step.data.vector_dim || 'N/A'} | ${currentLanguage === 'zh' ? '模型' : 'Model'}: ${step.data.embedding_model || 'N/A'}</span></div>`;
                 }
                 
                 // 添加一般数据信息
@@ -1388,7 +1549,7 @@
                     const data = step.response_data || step.output || step.result || step.answer || step.data;
                     
                     if (!dataInfo && typeof data === 'object' && Object.keys(data).length > 0) {
-                        stepDetail += `<strong>数据信息:</strong><br>`;
+                        stepDetail += `<strong>${t('dynamic.dataInfo')}:</strong><br>`;
                         const dataKeys = Object.keys(data).filter(k => k !== 'documents' && k !== 'embedding_model' && k !== 'vector_dim');
                         if (dataKeys.length > 0) {
                             stepDetail += `<div style="background: #f5f5f5; padding: 8px; margin-top: 5px; border-radius: 4px; font-size: 11px;">`;
@@ -1405,7 +1566,7 @@
                     }
                     
                     if (typeof data === 'string') {
-                        stepDetail += `<strong>结果:</strong> <span style="color: #555; word-break: break-all;">${data}</span><br>`;
+                        stepDetail += `<strong>${currentLanguage === 'zh' ? '结果' : 'Result'}:</strong> <span style="color: #555; word-break: break-all;">${data}</span><br>`;
                     }
                 }
                 
