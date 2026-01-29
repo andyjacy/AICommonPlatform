@@ -830,6 +830,11 @@
             
             // 激活 Tab 按钮
             event.target.classList.add('active');
+            
+            // 切换到调用链追踪 Tab 时，立即显示数据
+            if (tabName === 'trace') {
+                displayTrace();
+            }
         }
 
         // ==================== 问答功能 ====================
