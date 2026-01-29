@@ -126,6 +126,36 @@
             font-weight: 600;
         }
 
+        /* 语言切换器 */
+        .language-switcher {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .language-btn {
+            padding: 6px 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            color: #666;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .language-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .language-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
         /* 容器 */
         .container {
             max-width: 1400px;
@@ -345,6 +375,10 @@
             <li class="nav-item" data-page="llm">🧠 大模型</li>
             <li class="nav-item" data-page="monitor">📊 监控面板</li>
         </ul>
+        <div class="language-switcher">
+            <button class="language-btn active" data-lang="zh" onclick="setLanguage('zh')">中文</button>
+            <button class="language-btn" data-lang="en" onclick="setLanguage('en')">English</button>
+        </div>
     </div>
 
     <!-- 主容器 -->
@@ -353,14 +387,14 @@
         <div class="page active" data-page-id="qa">
             <div class="page-header">
                 <h1>💬 问答中心</h1>
-                <p>输入问题，AI 将为您提供智能回答</p>
+                <p data-i18n="qa.ask">输入问题，AI 将为您提供智能回答</p>
             </div>
 
             <div class="layout">
                 <div class="main-content">
                     <div class="input-group">
-                        <input type="text" id="questionInput" placeholder="输入您的问题...">
-                        <button class="btn" id="askBtn" onclick="askQuestion()">提问</button>
+                        <input type="text" id="questionInput" data-i18n-placeholder="qa.question" placeholder="输入您的问题...">
+                        <button class="btn" id="askBtn" data-i18n="qa.ask" onclick="askQuestion()">提问</button>
                     </div>
 
                     <div id="progressContainer" style="display: none;">
@@ -372,7 +406,7 @@
 
                     <label style="display: flex; align-items: center; gap: 8px; margin: 20px 0; color: #667eea; font-size: 14px;">
                         <input type="checkbox" id="enableTrace">
-                        显示调用链
+                        <span data-i18n="qa.enableTrace">显示调用链</span>
                     </label>
 
                     <div class="tabs">
@@ -558,11 +592,11 @@
 
         <div class="page" data-page-id="llm">
             <div class="page-header">
-                <h1>🧠 大模型管理</h1>
-                <p>配置、管理和选择 AI 大模型接口</p>
+                <h1 data-i18n="llm.management">🧠 大模型管理</h1>
+                <p data-i18n="llm.description">配置、管理和选择 AI 大模型接口</p>
             </div>
             <div class="card" id="llmContainer">
-                <p style="color: #999; text-align: center; padding: 30px;">加载中...</p>
+                <p style="color: #999; text-align: center; padding: 30px;" data-i18n="common.loading">加载中...</p>
             </div>
         </div>
 
@@ -578,6 +612,273 @@
     </div>
 
     <script>
+        // ==================== 多语言国际化系统 ====================
+        const i18n = {
+            zh: {
+                // 导航和通用
+                'navbar.title': 'AI Common Platform v2.1.0',
+                'navbar.home': '🏠 首页',
+                'navbar.qa': '💬 问答',
+                'navbar.rag': '📚 知识库',
+                'navbar.llm': '🧠 大模型',
+                'navbar.prompt': '✨ 提示词',
+                'navbar.integration': '🔗 系统集成',
+                'navbar.language': '语言',
+                
+                // 问答页面
+                'qa.question': '请输入您的问题...',
+                'qa.ask': '提问',
+                'qa.processing': '处理中...',
+                'qa.enableTrace': '显示调用链',
+                'qa.history': '回答历史',
+                'qa.search': '知识库搜索',
+                'qa.trace': '调用链追踪',
+                'qa.noHistory': '暂无问答记录',
+                'qa.confidence': '置信度',
+                'qa.duration': '耗时',
+                'qa.viewTrace': '🔍 查看调用链',
+                'qa.noTraceData': '尚无调用链数据。请先提出一个问题来生成追踪信息。',
+                'qa.traceDetail': '📊 调用链追踪详情',
+                'qa.traceId': '追踪 ID',
+                'qa.steps': '步骤数',
+                'qa.stepDetail': '🔄 处理步骤及详细信息',
+                'qa.stage': '阶段',
+                'qa.purpose': '用途',
+                'qa.documentFound': '检索到 {{count}} 个相关文档',
+                'qa.noDocument': '未找到相关文档',
+                'qa.retrievalError': '检索错误',
+                
+                // 知识库页面
+                'rag.search': '搜索知识库...',
+                'rag.searchBtn': '搜索',
+                'rag.searching': '搜索中...',
+                'rag.noResults': '未找到相关内容',
+                'rag.category': '分类',
+                'rag.source': '来源',
+                'rag.similarity': '相似度',
+                'rag.tags': '标签',
+                'rag.loading': '加载中...',
+                'rag.uncategorized': '未分类',
+                'rag.internal': '内部',
+                
+                // 大模型页面
+                'llm.loading': '加载中...',
+                'llm.noModels': '暂无大模型配置',
+                'llm.loadError': '加载失败',
+                'llm.provider': '提供商',
+                'llm.endpoint': '端点',
+                'llm.maxTokens': '最大Token',
+                'llm.temperature': '温度',
+                'llm.baseUrl': 'Base URL',
+                'llm.createdAt': '创建于',
+                'llm.updatedAt': '更新于',
+                'llm.readonly': '🔒 只读',
+                'llm.readonlyTip': '配置在数据库中，不可修改',
+                'llm.default': '★ 默认',
+                'llm.enabled': '✅ 启用',
+                'llm.disabled': '⊘ 禁用',
+                'llm.api': 'API 接口',
+                'llm.local': '本地模型',
+                
+                // 提示词页面
+                'prompt.title': 'Prompt 模板库',
+                'prompt.noTemplates': '暂无Prompt模板',
+                'prompt.role': '角色',
+                'prompt.noDescription': '暂无描述',
+                
+                // 系统集成页面
+                'integration.search': '搜索企业知识...',
+                'integration.searchBtn': '搜索',
+                'integration.category': '按分类',
+                'integration.noResults': '⚠️ 未找到相关企业知识',
+                'integration.found': '找到',
+                'integration.items': '条相关企业知识',
+                'integration.source': '来源',
+                'integration.tags': '标签',
+                
+                // 错误和状态
+                'error.required': '请输入{{field}}',
+                'error.search': '搜索失败',
+                'error.loading': '加载失败',
+                'status.searching': '搜索中...',
+                'status.loading': '加载中...',
+                'status.success': '成功',
+                'status.error': '错误',
+                
+                // LLM 管理
+                'llm.management': '大模型管理',
+                'llm.description': '配置、管理和选择 AI 大模型接口',
+                'llm.configDb': '数据库配置',
+                'llm.configDbTip': '这些模型配置在数据库中（只读）',
+                'llm.defaultModel': '默认使用',
+                
+                // 其他
+                'common.loading': '加载中...',
+                'common.success': '成功',
+                'common.error': '错误',
+                'common.failed': '失败',
+                'common.noData': '暂无数据',
+            },
+            en: {
+                // Navigation and General
+                'navbar.title': 'AI Common Platform v2.1.0',
+                'navbar.home': '🏠 Home',
+                'navbar.qa': '💬 Q&A',
+                'navbar.rag': '📚 Knowledge Base',
+                'navbar.llm': '🧠 LLM Models',
+                'navbar.prompt': '✨ Prompt',
+                'navbar.integration': '🔗 Integration',
+                'navbar.language': 'Language',
+                
+                // Q&A Page
+                'qa.question': 'Enter your question...',
+                'qa.ask': 'Ask',
+                'qa.processing': 'Processing...',
+                'qa.enableTrace': 'Show Call Chain',
+                'qa.history': 'Answer History',
+                'qa.search': 'Knowledge Search',
+                'qa.trace': 'Call Chain Trace',
+                'qa.noHistory': 'No answer history',
+                'qa.confidence': 'Confidence',
+                'qa.duration': 'Duration',
+                'qa.viewTrace': '🔍 View Trace',
+                'qa.noTraceData': 'No call chain data. Please ask a question first.',
+                'qa.traceDetail': '📊 Call Chain Details',
+                'qa.traceId': 'Trace ID',
+                'qa.steps': 'Steps',
+                'qa.stepDetail': '🔄 Processing Steps and Details',
+                'qa.stage': 'Stage',
+                'qa.purpose': 'Purpose',
+                'qa.documentFound': 'Retrieved {{count}} relevant documents',
+                'qa.noDocument': 'No relevant documents found',
+                'qa.retrievalError': 'Retrieval Error',
+                
+                // Knowledge Base Page
+                'rag.search': 'Search knowledge base...',
+                'rag.searchBtn': 'Search',
+                'rag.searching': 'Searching...',
+                'rag.noResults': 'No relevant content found',
+                'rag.category': 'Category',
+                'rag.source': 'Source',
+                'rag.similarity': 'Similarity',
+                'rag.tags': 'Tags',
+                'rag.loading': 'Loading...',
+                'rag.uncategorized': 'Uncategorized',
+                'rag.internal': 'Internal',
+                
+                // LLM Page
+                'llm.loading': 'Loading...',
+                'llm.noModels': 'No LLM models configured',
+                'llm.loadError': 'Load failed',
+                'llm.provider': 'Provider',
+                'llm.endpoint': 'Endpoint',
+                'llm.maxTokens': 'Max Tokens',
+                'llm.temperature': 'Temperature',
+                'llm.baseUrl': 'Base URL',
+                'llm.createdAt': 'Created at',
+                'llm.updatedAt': 'Updated at',
+                'llm.readonly': '🔒 Read-only',
+                'llm.readonlyTip': 'Configured in database, cannot modify',
+                'llm.default': '★ Default',
+                'llm.enabled': '✅ Enabled',
+                'llm.disabled': '⊘ Disabled',
+                'llm.api': 'API Interface',
+                'llm.local': 'Local Model',
+                
+                // Prompt Page
+                'prompt.title': 'Prompt Template Library',
+                'prompt.noTemplates': 'No prompt templates',
+                'prompt.role': 'Role',
+                'prompt.noDescription': 'No description',
+                
+                // System Integration Page
+                'integration.search': 'Search enterprise knowledge...',
+                'integration.searchBtn': 'Search',
+                'integration.category': 'By Category',
+                'integration.noResults': '⚠️ No relevant enterprise knowledge found',
+                'integration.found': 'Found',
+                'integration.items': 'relevant enterprise knowledge',
+                'integration.source': 'Source',
+                'integration.tags': 'Tags',
+                
+                // Errors and Status
+                'error.required': 'Please enter {{field}}',
+                'error.search': 'Search failed',
+                'error.loading': 'Loading failed',
+                'status.searching': 'Searching...',
+                'status.loading': 'Loading...',
+                'status.success': 'Success',
+                'status.error': 'Error',
+                
+                // LLM Management
+                'llm.management': 'LLM Management',
+                'llm.description': 'Configure, manage and select AI large model interface',
+                'llm.configDb': 'Database Configuration',
+                'llm.configDbTip': 'These models are configured in the database (read-only)',
+                'llm.defaultModel': 'Default Usage',
+                
+                // Others
+                'common.loading': 'Loading...',
+                'common.success': 'Success',
+                'common.error': 'Error',
+                'common.failed': 'Failed',
+                'common.noData': 'No data',
+            }
+        };
+
+        // 当前语言
+        let currentLanguage = localStorage.getItem('language') || 'zh';
+
+        // 翻译函数
+        function t(key, replacements = {}) {
+            let text = i18n[currentLanguage]?.[key] || i18n['zh'][key] || key;
+            
+            // 处理占位符替换
+            Object.entries(replacements).forEach(([placeholder, value]) => {
+                text = text.replace(`{{${placeholder}}}`, value);
+            });
+            
+            return text;
+        }
+
+        // 切换语言函数
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            updatePageLanguage();
+        }
+
+        // 更新页面语言
+        function updatePageLanguage() {
+            // 更新所有带有 data-i18n 属性的元素
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'submit')) {
+                    el.value = t(key);
+                } else if (el.tagName === 'TEXTAREA') {
+                    el.placeholder = t(key);
+                } else {
+                    el.textContent = t(key);
+                }
+            });
+            
+            // 更新所有带有 data-i18n-placeholder 属性的输入框
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                el.placeholder = t(key);
+            });
+            
+            // 更新语言切换按钮状态
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === currentLanguage);
+            });
+            
+            // 如果某些页面内容已加载，重新刷新显示
+            if (document.getElementById('llmContainer') && document.querySelector('[data-page-id="llm"].active')) {
+                loadLLMModels();
+            }
+        }
+
         // ==================== 初始化 ====================
         
         // 隐藏加载遮罩
