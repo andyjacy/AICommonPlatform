@@ -6,8 +6,39 @@
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
-    <title>AI Common Platform v2.1.0</title>
+    <title>AI Common Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --bg-tertiary: #1a1a1a;
+            --bg-elevated: #1f1f1f;
+            --bg-hover: #252525;
+            --border-color: #2a2a2a;
+            --border-hover: #3a3a3a;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1a1;
+            --text-muted: #6b6b6b;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #60a5fa;
+            --accent-success: #22c55e;
+            --accent-warning: #eab308;
+            --accent-danger: #ef4444;
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            --transition-slow: 350ms ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -15,26 +46,26 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-primary);
             min-height: 100vh;
-            color: #333;
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* 加载遮罩样式 */
+        /* Loading Mask */
         #loadingMask {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
+            inset: 0;
+            background: var(--bg-primary);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 9999;
             opacity: 1;
-            transition: opacity 0.3s ease-out;
+            transition: opacity var(--transition-slow);
         }
 
         #loadingMask.hidden {
@@ -42,268 +73,388 @@
             pointer-events: none;
         }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f0f0f0;
-            border-top-color: #667eea;
+        .loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-primary);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loader-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .loading-text {
-            position: absolute;
-            bottom: 100px;
-            color: #999;
-            font-size: 14px;
-        }
-
-        /* 进度条 */
-        .progress-bar {
-            height: 4px;
-            background: #e0e0e0;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.3s ease;
-            border-radius: 2px;
-        }
-
-        .progress-text {
-            font-size: 12px;
-            color: #667eea;
-            margin-top: 5px;
-            font-weight: 600;
-        }
-
-        /* 导航栏 */
+        /* Navbar */
         .navbar {
-            background: rgba(255, 255, 255, 0.98);
-            padding: 0 30px;
-            height: 70px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 24px;
+            height: 64px;
             display: flex;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
 
         .navbar-brand {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
             margin-right: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            text-decoration: none;
+        }
+
+        .navbar-brand svg {
+            width: 28px;
+            height: 28px;
         }
 
         .nav-menu {
             display: flex;
-            gap: 30px;
+            gap: 4px;
             flex: 1;
             list-style: none;
         }
 
         .nav-item {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            transition: color 0.3s;
+            transition: all var(--transition-fast);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .nav-item:hover,
+        .nav-item:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
         .nav-item.active {
-            color: #667eea;
-            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
         }
 
-        /* 语言切换器 */
+        .nav-item svg {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        .nav-item.active svg,
+        .nav-item:hover svg {
+            opacity: 1;
+        }
+
+        /* Language Switcher */
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+        }
+
         .language-switcher {
             display: flex;
-            gap: 8px;
-            margin-left: auto;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 2px;
+            border: 1px solid var(--border-color);
         }
 
         .language-btn {
             padding: 6px 12px;
-            border: 2px solid #e0e0e0;
-            background: white;
-            color: #666;
-            border-radius: 6px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
             cursor: pointer;
             font-size: 13px;
             font-weight: 500;
-            transition: all 0.3s;
+            transition: all var(--transition-fast);
         }
 
         .language-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
+            color: var(--text-primary);
         }
 
         .language-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
+            background: var(--bg-elevated);
+            color: var(--text-primary);
         }
 
-        /* 容器 */
+        /* Container */
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 30px;
+            padding: 32px 24px;
         }
 
-        /* 页面头部 */
+        /* Page Header */
         .page-header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 32px;
         }
 
         .page-header h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            color: #333;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
         }
 
         .page-header p {
-            color: #999;
-            font-size: 16px;
+            color: var(--text-secondary);
+            font-size: 15px;
         }
 
-        /* 布局 */
+        /* Layout */
         .layout {
             display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 30px;
+            grid-template-columns: 1fr 320px;
+            gap: 24px;
         }
 
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: all var(--transition-normal);
+        }
+
+        .card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title svg {
+            width: 18px;
+            height: 18px;
+            color: var(--accent-primary);
+        }
+
+        /* Main Content */
         .main-content {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
         }
 
+        /* Sidebar */
         .sidebar {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        /* 输入框 */
+        /* Input Group */
         .input-group {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .input-wrapper svg {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-muted);
         }
 
         input[type="text"],
         textarea {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            width: 100%;
+            padding: 12px 16px;
+            padding-left: 44px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
             font-size: 14px;
             font-family: inherit;
+            color: var(--text-primary);
+            transition: all var(--transition-fast);
         }
 
         input[type="text"]:focus,
         textarea:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--accent-primary);
+            background: var(--bg-elevated);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
 
-        /* 按钮 */
+        input[type="text"]::placeholder,
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Buttons */
         .btn {
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 12px 20px;
+            background: var(--text-primary);
+            color: var(--bg-primary);
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         .btn:active {
             transform: translateY(0);
         }
 
-        /* QA 项目 */
-        .qa-item {
-            background: #f9f9f9;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .qa-question {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
 
-        .qa-answer {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 10px;
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-hover);
         }
 
-        .qa-meta {
-            font-size: 12px;
-            color: #999;
+        .btn svg {
+            width: 16px;
+            height: 16px;
         }
 
-        /* 选项卡 */
+        /* Checkbox */
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-primary);
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper span {
+            font-size: 14px;
+            color: var(--text-secondary);
+            user-select: none;
+        }
+
+        /* Tabs */
         .tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e0e0e0;
+            gap: 4px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
         }
 
         .tab-btn {
-            padding: 12px 20px;
+            padding: 10px 16px;
             background: none;
             border: none;
             cursor: pointer;
-            color: #999;
-            font-weight: 600;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all var(--transition-fast);
+            border-radius: var(--radius-md);
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
         }
 
         .tab-btn.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -13px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 2px;
+            background: var(--accent-primary);
+            border-radius: 2px;
         }
 
         .tab-content {
@@ -312,1001 +463,1259 @@
 
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.3s ease;
         }
 
-        /* 隐藏不必要的页面 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: width var(--transition-normal);
+            border-radius: 4px;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* QA Item */
+        .qa-item {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-fast);
+        }
+
+        .qa-item:hover {
+            border-color: var(--border-hover);
+        }
+
+        .qa-question {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            font-size: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .qa-question::before {
+            content: 'Q';
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .qa-answer {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 14px;
+            padding-left: 32px;
+            margin-bottom: 16px;
+        }
+
+        .qa-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-left: 32px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .qa-meta .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: var(--bg-hover);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+        }
+
+        .qa-meta .badge-success {
+            color: var(--accent-success);
+        }
+
+        /* Status Card */
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-info {
+            flex: 1;
+        }
+
+        .status-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .status-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* System Info Card */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .info-value {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Pages */
         .page {
             display: none;
         }
 
         .page.active {
             display: block;
+            animation: fadeIn 0.3s ease;
         }
 
-        /* 响应式 */
-        @media (max-width: 768px) {
+        /* Grid Layout for Cards */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: all var(--transition-normal);
+            cursor: default;
+        }
+
+        .feature-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 24px;
+        }
+
+        .feature-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .feature-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin-top: 12px;
+        }
+
+        /* Integration Card */
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .integration-btn {
+            padding: 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: center;
+        }
+
+        .integration-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .integration-btn .icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .integration-btn .label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* LLM Model Card */
+        .model-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all var(--transition-fast);
+        }
+
+        .model-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .model-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .model-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .model-badges {
+            display: flex;
+            gap: 8px;
+        }
+
+        .model-badge {
+            padding: 4px 8px;
+            background: var(--bg-hover);
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .model-badge.default {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-primary);
+        }
+
+        .model-badge.enabled {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--accent-success);
+        }
+
+        .model-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .model-detail {
+            font-size: 12px;
+        }
+
+        .model-detail-label {
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .model-detail-value {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Trace Timeline */
+        .trace-timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .trace-timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .trace-step {
+            position: relative;
+            padding: 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+
+        .trace-step::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 20px;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            border: 2px solid var(--bg-secondary);
+        }
+
+        .trace-step.success::before {
+            background: var(--accent-success);
+        }
+
+        .trace-step.error::before {
+            background: var(--accent-danger);
+        }
+
+        .trace-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .trace-stage {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .trace-service {
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 2px 8px;
+            background: var(--bg-hover);
+            border-radius: var(--radius-sm);
+        }
+
+        .trace-purpose {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
             .layout {
                 grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .sidebar .card {
+                flex: 1;
+                min-width: 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 16px;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .container {
+                padding: 20px 16px;
+            }
+
+            .page-header h1 {
+                font-size: 24px;
             }
 
             .input-group {
                 flex-direction: column;
             }
 
-            .navbar {
-                padding: 0 15px;
+            .grid-cards {
+                grid-template-columns: 1fr;
             }
+        }
 
-            .nav-menu {
-                gap: 15px;
-                font-size: 14px;
-            }
+        /* Mobile Nav Menu */
+        .mobile-menu-btn {
+            display: none;
+            padding: 8px;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
 
-            .container {
-                padding: 15px;
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+                margin-right: 12px;
             }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-hover);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-hover);
+        }
+
+        /* Search Results */
+        .search-result {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all var(--transition-fast);
+        }
+
+        .search-result:hover {
+            border-color: var(--border-hover);
+        }
+
+        .search-result-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .search-result-content {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .search-result-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .search-result-meta .tag {
+            padding: 2px 8px;
+            background: var(--bg-hover);
+            border-radius: var(--radius-sm);
+        }
+
+        /* Connected System */
+        .system-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .system-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .system-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--accent-success);
+            font-weight: 500;
+        }
+
+        .system-desc {
+            font-size: 12px;
+            color: var(--text-muted);
         }
     </style>
 </head>
 <body>
-    <!-- 加载遮罩 -->
+    <!-- Loading Mask -->
     <div id="loadingMask">
-        <div style="text-align: center;">
-            <div class="spinner"></div>
-            <div class="loading-text">正在加载...</div>
+        <div class="loader">
+            <div class="loader-spinner"></div>
+            <div class="loader-text">Loading...</div>
         </div>
     </div>
 
-    <!-- DEBUG面板 -->
-    <div id="debugPanel" style="position: fixed; top: 70px; right: 20px; width: 300px; max-height: 400px; background: rgba(0,0,0,0.9); color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 4px; overflow-y: auto; z-index: 10000; display: none; border: 1px solid #0f0;">
-        <div style="margin-bottom: 10px; font-weight: bold; color: #0ff;">🔍 DEBUG LOG</div>
-        <div id="debugContent" style="white-space: pre-wrap; word-break: break-all;"></div>
-    </div>
-
-    <!-- 导航栏 -->
-    <div class="navbar">
-        <div class="navbar-brand">🤖 AI Platform</div>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <a href="#" class="navbar-brand">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            AI Platform
+        </a>
         <ul class="nav-menu">
-            <li class="nav-item active" data-page="qa" data-i18n="navbar.qa">💬 问答中心</li>
-            <li class="nav-item" data-page="prompt" data-i18n="navbar.prompt">📝 Prompt 管理</li>
-            <li class="nav-item" data-page="rag" data-i18n="navbar.rag">📚 知识库</li>
-            <li class="nav-item" data-page="agent" data-i18n="navbar.agent">🤖 Agent 工具</li>
-            <li class="nav-item" data-page="integration" data-i18n="navbar.integration">🔗 系统集成</li>
-            <li class="nav-item" data-page="llm" data-i18n="navbar.llm">🧠 大模型</li>
-            <li class="nav-item" data-page="monitor" data-i18n="navbar.monitor">📊 监控面板</li>
+            <li class="nav-item active" data-page="qa">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span data-i18n="navbar.qa">Q&A Center</span>
+            </li>
+            <li class="nav-item" data-page="prompt">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                <span data-i18n="navbar.prompt">Prompts</span>
+            </li>
+            <li class="nav-item" data-page="rag">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                <span data-i18n="navbar.rag">Knowledge</span>
+            </li>
+            <li class="nav-item" data-page="integration">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                <span data-i18n="navbar.integration">Integration</span>
+            </li>
+            <li class="nav-item" data-page="llm">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z"></path><path d="M12 2a10 10 0 0 1 10 10"></path><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                <span data-i18n="navbar.llm">LLM Models</span>
+            </li>
+            <li class="nav-item" data-page="monitor">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                <span data-i18n="navbar.monitor">Monitor</span>
+            </li>
         </ul>
-        <div class="language-switcher">
-            <button class="language-btn active" data-lang="zh" onclick="setLanguage('zh')">中文</button>
-            <button class="language-btn" data-lang="en" onclick="setLanguage('en')">English</button>
+        <div class="nav-actions">
+            <div class="language-switcher">
+                <button class="language-btn active" data-lang="zh" onclick="setLanguage('zh')">CN</button>
+                <button class="language-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+            </div>
         </div>
-    </div>
+    </nav>
 
-    <!-- 主容器 -->
+    <!-- Main Container -->
     <div class="container">
-        <!-- 问答页面 -->
+        <!-- Q&A Page -->
         <div class="page active" data-page-id="qa">
             <div class="page-header">
-                <h1>💬 问答中心</h1>
-                <p data-i18n="qa.ask">输入问题，AI 将为您提供智能回答</p>
+                <h1 data-i18n="qa.title">Q&A Center</h1>
+                <p data-i18n="qa.subtitle">Ask questions and get intelligent AI-powered answers</p>
             </div>
 
             <div class="layout">
                 <div class="main-content">
                     <div class="input-group">
-                        <input type="text" id="questionInput" data-i18n-placeholder="qa.question" placeholder="输入您的问题...">
-                        <button class="btn" id="askBtn" data-i18n="qa.ask" onclick="askQuestion()">提问</button>
+                        <div class="input-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="text" id="questionInput" data-i18n-placeholder="qa.placeholder" placeholder="Enter your question...">
+                        </div>
+                        <button class="btn" id="askBtn" onclick="askQuestion()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            <span data-i18n="qa.ask">Ask</span>
+                        </button>
                     </div>
 
-                    <div id="progressContainer" style="display: none;">
+                    <div id="progressContainer" class="progress-container" style="display: none;">
                         <div class="progress-bar">
                             <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
                         </div>
-                        <div class="progress-text" id="progressText">处理中: 0%</div>
+                        <div class="progress-text" id="progressText">Processing: 0%</div>
                     </div>
 
-                    <label style="display: flex; align-items: center; gap: 8px; margin: 20px 0; color: #667eea; font-size: 14px;">
+                    <label class="checkbox-wrapper">
                         <input type="checkbox" id="enableTrace">
-                        <span data-i18n="qa.enableTrace">显示调用链</span>
+                        <span data-i18n="qa.enableTrace">Show call chain trace</span>
                     </label>
 
                     <div class="tabs">
-                        <button class="tab-btn active" onclick="switchTab(event, 'history')">回答历史</button>
-                        <button class="tab-btn" onclick="switchTab(event, 'search')">知识库搜索</button>
-                        <button class="tab-btn" onclick="switchTab(event, 'trace')">调用链追踪</button>
+                        <button class="tab-btn active" onclick="switchTab(event, 'history')" data-i18n="qa.history">History</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'search')" data-i18n="qa.search">Search</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'trace')" data-i18n="qa.trace">Trace</button>
                     </div>
 
                     <div id="history-tab" class="tab-content active">
                         <div id="responseArea">
-                            <p style="color: #999; text-align: center;" data-i18n="qa.afterAsk">提问后，回答将显示在这里</p>
+                            <div class="empty-state">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                <p data-i18n="qa.emptyHistory">Your answers will appear here after asking</p>
+                            </div>
                         </div>
                     </div>
 
                     <div id="search-tab" class="tab-content">
-                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                            <input type="text" id="searchInput" data-i18n-placeholder="rag.search" placeholder="搜索知识库..." style="flex: 1;">
-                            <button class="btn" data-i18n="rag.searchBtn" onclick="searchKnowledge()">搜索</button>
+                        <div class="input-group">
+                            <div class="input-wrapper">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <input type="text" id="searchInput" data-i18n-placeholder="rag.searchPlaceholder" placeholder="Search knowledge base...">
+                            </div>
+                            <button class="btn btn-secondary" onclick="searchKnowledge()" data-i18n="rag.searchBtn">Search</button>
                         </div>
                         <div id="searchResults">
-                            <p style="color: #999; text-align: center;" data-i18n="qa.searchResults">搜索结果将显示在这里</p>
+                            <div class="empty-state">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <p data-i18n="qa.emptySearch">Search results will appear here</p>
+                            </div>
                         </div>
                     </div>
 
                     <div id="trace-tab" class="tab-content">
                         <div id="traceArea">
-                            <p style="color: #999; text-align: center;" data-i18n="qa.traceMessage">勾选"显示调用链"后，提问时将显示完整的处理流程</p>
+                            <div class="empty-state">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                                <p data-i18n="qa.emptyTrace">Enable "Show call chain trace" to see the processing flow</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="sidebar">
                     <div class="card">
-                        <h3 data-i18n="qa.serviceStatus">🟢 服务状态</h3>
-                        <div style="font-size: 13px; color: #666;">
-                            <div style="margin-bottom: 10px;" data-i18n="qa.allServicesOk">✅ 所有服务正常</div>
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                <span data-i18n="qa.serviceStatus">Service Status</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-dot"></div>
+                            <div class="status-info">
+                                <div class="status-name" data-i18n="qa.allOnline">All services online</div>
+                                <div class="status-desc">7 services running</div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="card">
-                        <h3 data-i18n="qa.systemInfo">⚙️ 系统信息</h3>
-                        <div style="font-size: 13px; color: #666;">
-                            <div style="margin-bottom: 8px;">版本: 1.0.0</div>
-                            <div>环境: 轻量版</div>
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                                <span data-i18n="qa.systemInfo">System Info</span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label" data-i18n="qa.version">Version</span>
+                            <span class="info-value">2.1.0</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label" data-i18n="qa.environment">Environment</span>
+                            <span class="info-value">Lite</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label" data-i18n="qa.model">Model</span>
+                            <span class="info-value">GPT-3.5</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 其他页面 (简化版) -->
+        <!-- Prompt Page -->
         <div class="page" data-page-id="prompt">
             <div class="page-header">
-                <h1 data-i18n="prompt.management">📝 Prompt 管理</h1>
-                <p data-i18n="prompt.description">查看和管理 AI 助手角色配置</p>
+                <h1 data-i18n="prompt.title">Prompt Management</h1>
+                <p data-i18n="prompt.subtitle">View and manage AI assistant role configurations</p>
             </div>
-            <div class="card" id="promptContainer">
-                <p style="color: #999; text-align: center; padding: 30px;" data-i18n="common.loading">加载中...</p>
+            <div id="promptContainer">
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    <p data-i18n="common.loading">Loading...</p>
+                </div>
             </div>
         </div>
 
+        <!-- RAG Page -->
         <div class="page" data-page-id="rag">
             <div class="page-header">
-                <h1 data-i18n="rag.management">📚 知识库管理</h1>
-                <p data-i18n="rag.description">企业内部知识库，支持文档搜索和检索</p>
+                <h1 data-i18n="rag.title">Knowledge Base</h1>
+                <p data-i18n="rag.subtitle">Enterprise knowledge base with document search and retrieval</p>
             </div>
             <div class="card">
-                <div style="margin-bottom: 20px;">
-                    <input type="text" id="ragSearchInput" data-i18n-placeholder="rag.search" placeholder="搜索知识库文档..." 
-                           style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; margin-bottom: 10px;">
-                    <button class="btn" onclick="searchRagDocuments()" style="width: 100%;">🔍 搜索</button>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="ragSearchInput" data-i18n-placeholder="rag.searchPlaceholder" placeholder="Search documents...">
+                    </div>
+                    <button class="btn" onclick="searchRagDocuments()" data-i18n="rag.searchBtn">Search</button>
                 </div>
-                <div id="ragResults" style="margin-top: 20px;">
-                    <p style="color: #999; text-align: center;" data-i18n="common.loading">加载中...</p>
+                <div id="ragResults">
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        <p data-i18n="rag.emptyResults">Enter keywords to search the knowledge base</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="page" data-page-id="agent">
-            <div class="page-header">
-                <h1 data-i18n="agent.title">🤖 Agent 工具</h1>
-                <p data-i18n="agent.description">AI Agent 可以使用的工具和集成能力</p>
-            </div>
-            <div class="card">
-                <p style="color: #999;" data-i18n="agent.noAgents">Agent 工具功能开发中...</p>
-            </div>
-        </div>
-
+        <!-- Integration Page -->
         <div class="page" data-page-id="integration">
             <div class="page-header">
-                <h1 data-i18n="integration.title">🔗 系统集成</h1>
-                <p data-i18n="integration.description">企业各类系统的知识库展示和智能查询</p>
+                <h1 data-i18n="integration.title">System Integration</h1>
+                <p data-i18n="integration.subtitle">Enterprise system knowledge base and intelligent queries</p>
             </div>
             
-            <!-- 知识库查询面板 -->
-            <div class="card">
-                <h3 data-i18n="rag.documents">📚 企业知识库</h3>
-                <div style="margin-bottom: 15px;">
-                    <input type="text" id="integrationSearchInput" data-i18n-placeholder="integration.search" placeholder="搜索企业知识库（如：销售、HR、财务、技术等）" 
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                    <button onclick="searchIntegrationKnowledge()" 
-                            style="margin-top: 10px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        🔍 搜索
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <span data-i18n="integration.searchTitle">Enterprise Knowledge Search</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="integrationSearchInput" data-i18n-placeholder="integration.searchPlaceholder" placeholder="Search enterprise knowledge...">
+                    </div>
+                    <button class="btn" onclick="searchIntegrationKnowledge()" data-i18n="integration.searchBtn">Search</button>
+                </div>
+                <div id="integrationResults"></div>
+            </div>
+            
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                        <span data-i18n="integration.categories">Browse by Category</span>
+                    </div>
+                </div>
+                <div class="integration-grid">
+                    <button class="integration-btn" onclick="searchIntegrationByCategory('sales')">
+                        <div class="icon">Sales</div>
+                        <div class="label" data-i18n="integration.sales">Sales Dept</div>
+                    </button>
+                    <button class="integration-btn" onclick="searchIntegrationByCategory('hr')">
+                        <div class="icon">HR</div>
+                        <div class="label" data-i18n="integration.hr">Human Resources</div>
+                    </button>
+                    <button class="integration-btn" onclick="searchIntegrationByCategory('finance')">
+                        <div class="icon">FIN</div>
+                        <div class="label" data-i18n="integration.finance">Finance</div>
+                    </button>
+                    <button class="integration-btn" onclick="searchIntegrationByCategory('technical')">
+                        <div class="icon">TECH</div>
+                        <div class="label" data-i18n="integration.technical">Technical</div>
+                    </button>
+                    <button class="integration-btn" onclick="searchIntegrationByCategory('supply_chain')">
+                        <div class="icon">SCM</div>
+                        <div class="label" data-i18n="integration.supplyChain">Supply Chain</div>
+                    </button>
+                    <button class="integration-btn" onclick="searchIntegrationByCategory('marketing')">
+                        <div class="icon">MKT</div>
+                        <div class="label" data-i18n="integration.marketing">Marketing</div>
                     </button>
                 </div>
-                <div id="integrationResults" style="margin-top: 15px;"></div>
             </div>
-            
-            <!-- 业务分类导航 -->
+
             <div class="card">
-                <h3>📊 按业务分类浏览</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-                    <button onclick="searchIntegrationByCategory('sales')" 
-                            style="padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                        💼 销售部门
-                    </button>
-                    <button onclick="searchIntegrationByCategory('hr')" 
-                            style="padding: 12px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                        👥 人力资源
-                    </button>
-                    <button onclick="searchIntegrationByCategory('finance')" 
-                            style="padding: 12px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                        💰 财务部门
-                    </button>
-                    <button onclick="searchIntegrationByCategory('technical')" 
-                            style="padding: 12px; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                        🔧 技术部门
-                    </button>
-                    <button onclick="searchIntegrationByCategory('supply_chain')" 
-                            style="padding: 12px; background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                        🚚 供应链
-                    </button>
-                    <button onclick="searchIntegrationByCategory('marketing')" 
-                            style="padding: 12px; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                        📢 市场营销
-                    </button>
-                    <button onclick="searchIntegrationByCategory('security')" 
-                            style="padding: 12px; background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                        🔐 安全合规
-                    </button>
-                    <button onclick="searchIntegrationByCategory('operations')" 
-                            style="padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                        ⚙️ 运营管理
-                    </button>
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span data-i18n="integration.connectedSystems">Connected Systems</span>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- 系统集成状态 -->
-            <div class="card">
-                <h3>🏢 企业系统连接状态</h3>
-                <div id="systemStatusContainer" style="margin-top: 15px;">
-                    <div style="padding: 10px; background: #f0f0f0; border-radius: 4px; margin-bottom: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span><strong>ERP 系统</strong> - 销售、库存、采购</span>
-                            <span style="color: #4caf50; font-weight: 600;">✓ 已连接</span>
+                <div id="systemStatusContainer">
+                    <div class="system-card">
+                        <div class="system-header">
+                            <span class="system-name">ERP System</span>
+                            <span class="system-status">
+                                <span class="status-dot"></span>
+                                Connected
+                            </span>
                         </div>
-                        <div style="font-size: 12px; color: #999; margin-top: 5px;">数据库: PostgreSQL | 更新频率: 实时</div>
+                        <div class="system-desc">Sales, Inventory, Procurement | PostgreSQL | Real-time</div>
                     </div>
-                    <div style="padding: 10px; background: #f0f0f0; border-radius: 4px; margin-bottom: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span><strong>HR 系统</strong> - 员工、薪酬、绩效</span>
-                            <span style="color: #4caf50; font-weight: 600;">✓ 已连接</span>
+                    <div class="system-card">
+                        <div class="system-header">
+                            <span class="system-name">HR System</span>
+                            <span class="system-status">
+                                <span class="status-dot"></span>
+                                Connected
+                            </span>
                         </div>
-                        <div style="font-size: 12px; color: #999; margin-top: 5px;">数据库: PostgreSQL | 更新频率: 每天</div>
+                        <div class="system-desc">Employees, Payroll, Performance | PostgreSQL | Daily</div>
                     </div>
-                    <div style="padding: 10px; background: #f0f0f0; border-radius: 4px; margin-bottom: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span><strong>财务系统</strong> - 预算、账务、报表</span>
-                            <span style="color: #4caf50; font-weight: 600;">✓ 已连接</span>
+                    <div class="system-card">
+                        <div class="system-header">
+                            <span class="system-name">Finance System</span>
+                            <span class="system-status">
+                                <span class="status-dot"></span>
+                                Connected
+                            </span>
                         </div>
-                        <div style="font-size: 12px; color: #999; margin-top: 5px;">数据库: SAP | 更新频率: 每周</div>
+                        <div class="system-desc">Budget, Accounting, Reports | SAP | Weekly</div>
                     </div>
-                    <div style="padding: 10px; background: #f0f0f0; border-radius: 4px; margin-bottom: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span><strong>CRM 系统</strong> - 客户信息、销售机会</span>
-                            <span style="color: #4caf50; font-weight: 600;">✓ 已连接</span>
+                    <div class="system-card">
+                        <div class="system-header">
+                            <span class="system-name">CRM System</span>
+                            <span class="system-status">
+                                <span class="status-dot"></span>
+                                Connected
+                            </span>
                         </div>
-                        <div style="font-size: 12px; color: #999; margin-top: 5px;">API: REST | 更新频率: 实时</div>
+                        <div class="system-desc">Customer Info, Sales Opportunities | REST API | Real-time</div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- LLM Page -->
         <div class="page" data-page-id="llm">
             <div class="page-header">
-                <h1 data-i18n="llm.management">🧠 大模型管理</h1>
-                <p data-i18n="llm.description">配置、管理和选择 AI 大模型接口</p>
+                <h1 data-i18n="llm.title">LLM Models</h1>
+                <p data-i18n="llm.subtitle">Configure and manage AI large language model interfaces</p>
             </div>
-            <div class="card" id="llmContainer">
-                <p style="color: #999; text-align: center; padding: 30px;" data-i18n="common.loading">加载中...</p>
+            <div id="llmContainer">
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"></path><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
+                    <p data-i18n="common.loading">Loading...</p>
+                </div>
             </div>
         </div>
 
+        <!-- Monitor Page -->
         <div class="page" data-page-id="monitor">
             <div class="page-header">
-                <h1 data-i18n="monitor.title">📊 监控面板</h1>
-                <p data-i18n="monitor.description">系统实时监控和性能统计</p>
+                <h1 data-i18n="monitor.title">Monitor Panel</h1>
+                <p data-i18n="monitor.subtitle">Real-time system monitoring and performance statistics</p>
             </div>
             <div class="card">
-                <p style="color: #999;" data-i18n="monitor.developing">监控面板功能开发中...</p>
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <p data-i18n="monitor.developing">Monitor panel under development...</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ==================== 多语言国际化系统 ====================
+        // ==================== i18n System ====================
         const i18n = {
             zh: {
-                // 导航和通用
-                'navbar.title': 'AI Common Platform v2.1.0',
-                'navbar.qa': '💬 问答中心',
-                'navbar.prompt': '📝 Prompt 管理',
-                'navbar.rag': '📚 知识库',
-                'navbar.agent': '🤖 Agent 工具',
-                'navbar.integration': '🔗 系统集成',
-                'navbar.llm': '🧠 大模型',
-                'navbar.monitor': '📊 监控面板',
-                'navbar.language': '语言',
-                
-                // 问答页面
-                'qa.question': '请输入您的问题...',
+                'navbar.qa': '问答中心',
+                'navbar.prompt': 'Prompt',
+                'navbar.rag': '知识库',
+                'navbar.integration': '系统集成',
+                'navbar.llm': '大模型',
+                'navbar.monitor': '监控',
+                'qa.title': '问答中心',
+                'qa.subtitle': '输入问题，AI 将为您提供智能回答',
+                'qa.placeholder': '输入您的问题...',
                 'qa.ask': '提问',
-                'qa.processing': '处理中...',
-                'qa.enableTrace': '显示调用链',
-                'qa.history': '回答历史',
-                'qa.search': '知识库搜索',
-                'qa.trace': '调用链追踪',
-                'qa.noHistory': '暂无问答记录',
+                'qa.enableTrace': '显示调用链追踪',
+                'qa.history': '历史记录',
+                'qa.search': '知识搜索',
+                'qa.trace': '调用链',
+                'qa.emptyHistory': '提问后，回答将显示在这里',
+                'qa.emptySearch': '搜索结果将显示在这里',
+                'qa.emptyTrace': '勾选"显示调用链追踪"后查看处理流程',
+                'qa.serviceStatus': '服务状态',
+                'qa.allOnline': '所有服务在线',
+                'qa.systemInfo': '系统信息',
+                'qa.version': '版本',
+                'qa.environment': '环境',
+                'qa.model': '模型',
                 'qa.confidence': '置信度',
                 'qa.duration': '耗时',
-                'qa.viewTrace': '🔍 查看调用链',
-                'qa.noTraceData': '尚无调用链数据。请先提出一个问题来生成追踪信息。',
-                'qa.traceDetail': '📊 调用链追踪详情',
-                'qa.traceId': '追踪 ID',
-                'qa.steps': '步骤数',
-                'qa.stepDetail': '🔄 处理步骤及详细信息',
-                'qa.stage': '阶段',
-                'qa.purpose': '用途',
-                'qa.documentFound': '检索到 {{count}} 个相关文档',
-                'qa.noDocument': '未找到相关文档',
-                'qa.retrievalError': '检索错误',
-                
-                // 知识库页面
-                'rag.search': '搜索知识库...',
+                'qa.viewTrace': '查看调用链',
+                'prompt.title': 'Prompt 管理',
+                'prompt.subtitle': '查看和管理 AI 助手角色配置',
+                'rag.title': '知识库',
+                'rag.subtitle': '企业内部知识库，支持文档搜索和检索',
+                'rag.searchPlaceholder': '搜索知识库文档...',
                 'rag.searchBtn': '搜索',
-                'rag.searching': '搜索中...',
-                'rag.noResults': '未找到相关内容',
-                'rag.category': '分类',
-                'rag.source': '来源',
-                'rag.similarity': '相似度',
-                'rag.tags': '标签',
-                'rag.loading': '加载中...',
-                'rag.uncategorized': '未分类',
-                'rag.internal': '内部',
-                
-                // 大模型页面
-                'llm.loading': '加载中...',
-                'llm.noModels': '暂无大模型配置',
-                'llm.loadError': '加载失败',
+                'rag.emptyResults': '输入关键词搜索知识库',
+                'integration.title': '系统集成',
+                'integration.subtitle': '企业各类系统的知识库展示和智能查询',
+                'integration.searchTitle': '企业知识搜索',
+                'integration.searchPlaceholder': '搜索企业知识库...',
+                'integration.searchBtn': '搜索',
+                'integration.categories': '按业务分类浏览',
+                'integration.sales': '销售部门',
+                'integration.hr': '人力资源',
+                'integration.finance': '财务部门',
+                'integration.technical': '技术部门',
+                'integration.supplyChain': '供应链',
+                'integration.marketing': '市场营销',
+                'integration.connectedSystems': '已连接系统',
+                'llm.title': '大模型管理',
+                'llm.subtitle': '配置、管理和选择 AI 大模型接口',
                 'llm.provider': '提供商',
-                'llm.endpoint': '端点',
                 'llm.maxTokens': '最大Token',
                 'llm.temperature': '温度',
-                'llm.baseUrl': 'Base URL',
-                'llm.createdAt': '创建于',
-                'llm.updatedAt': '更新于',
-                'llm.readonly': '🔒 只读',
-                'llm.readonlyTip': '配置在数据库中，不可修改',
-                'llm.default': '★ 默认',
-                'llm.enabled': '✅ 启用',
-                'llm.disabled': '⊘ 禁用',
-                'llm.api': 'API 接口',
-                'llm.local': '本地模型',
-                
-                // 提示词页面
-                'prompt.title': 'Prompt 模板库',
-                'prompt.noTemplates': '暂无Prompt模板',
-                'prompt.role': '角色',
-                'prompt.noDescription': '暂无描述',
-                
-                // 系统集成页面
-                'integration.search': '搜索企业知识...',
-                'integration.searchBtn': '搜索',
-                'integration.category': '按分类',
-                'integration.noResults': '⚠️ 未找到相关企业知识',
-                'integration.found': '找到',
-                'integration.items': '条相关企业知识',
-                'integration.source': '来源',
-                'integration.tags': '标签',
-                
-                // 错误和状态
-                'error.required': '请输入{{field}}',
-                'error.search': '搜索失败',
-                'error.loading': '加载失败',
-                'status.searching': '搜索中...',
-                'status.loading': '加载中...',
-                'status.success': '成功',
-                'status.error': '错误',
-                
-                // LLM 管理
-                'llm.management': '大模型管理',
-                'llm.description': '配置、管理和选择 AI 大模型接口',
-                'llm.configDb': '数据库配置',
-                'llm.configDbTip': '这些模型配置在数据库中（只读）',
-                'llm.defaultModel': '默认使用',
-                
-                // 问答页面 - 额外的tab标签和消息
-                'qa.answerHistory': '回答历史',
-                'qa.knowledgeSearch': '知识库搜索',
-                'qa.callChainTrace': '调用链追踪',
-                'qa.afterAsk': '提问后，回答将显示在这里',
-                'qa.searchResults': '搜索结果将显示在这里',
-                'qa.traceMessage': '勾选"显示调用链"后，提问时将显示完整的处理流程',
-                'qa.serviceStatus': '🟢 服务状态',
-                'qa.allServicesOk': '✅ 所有服务正常',
-                'qa.systemInfo': '⚙️ 系统信息',
-                
-                // Prompt 页面
-                'prompt.management': '📝 Prompt 管理',
-                'prompt.description': '管理和优化 AI 提示词模板',
-                'prompt.templates': 'Prompt 模板库',
-                'prompt.noTemplates': '暂无Prompt模板',
-                'prompt.role': '角色',
-                'prompt.noDescription': '暂无描述',
-                'prompt.add': '添加模板',
-                'prompt.edit': '编辑',
-                'prompt.delete': '删除',
-                
-                // RAG 页面 - 额外的标签
-                'rag.documents': '知识库文档',
-                'rag.noDocuments': '暂无知识库文档',
-                'rag.uploadDocument': '上传文档',
-                'rag.documentTitle': '文档标题',
-                'rag.documentContent': '文档内容',
-                
-                // Agent 页面
-                'agent.title': '🤖 Agent 工具',
-                'agent.description': '智能代理工具和自动化工作流',
-                'agent.noAgents': '暂无Agent工具',
-                
-                // 系统集成页面 - 额外的标签
-                'integration.title': '🔗 系统集成',
-                'integration.description': '连接和管理企业知识系统',
-                'integration.systems': '已连接系统',
-                'integration.erp': 'ERP系统',
-                'integration.crm': 'CRM系统',
-                'integration.api': 'API',
-                'integration.status': '状态',
-                'integration.frequency': '更新频率',
-                
-                // 监控面板
-                'monitor.title': '📊 监控面板',
-                'monitor.description': '实时监控系统状态和性能指标',
+                'llm.default': '默认',
+                'llm.enabled': '已启用',
+                'monitor.title': '监控面板',
+                'monitor.subtitle': '系统实时监控和性能统计',
                 'monitor.developing': '监控面板功能开发中...',
-                
-                // 动态内容翻译
-                'dynamic.noHistory': '暂无问答记录',
-                'dynamic.confidence': '置信度',
-                'dynamic.unknownTime': '未知时间',
-                'dynamic.sales': '💼 销售',
-                'dynamic.hr': '👥 HR',
-                'dynamic.technical': '🏗️ 技术',
-                'dynamic.finance': '💰 财务',
-                'dynamic.supplyChain': '🚚 供应链',
-                'dynamic.general': '💬 通用',
-                'dynamic.question': '问题',
-                'dynamic.answer': '回答',
-                'dynamic.details': '详情',
-                'dynamic.loading': '加载中...',
-                'dynamic.noTrace': '尚无调用链数据。请先提出一个问题来生成追踪信息。',
-                'dynamic.traceSteps': '🔄 处理步骤及详细信息',
-                'dynamic.traceId': '追踪 ID',
-                'dynamic.totalSteps': '总步骤数',
-                'dynamic.duration': '总耗时',
-                'dynamic.documents': '相关文档',
-                'dynamic.dataInfo': '数据信息',
-                'dynamic.step': '步骤',
-                'dynamic.noDocuments': '未找到相关文档',
-                'dynamic.retrievalStatus': '检索状态',
-                'dynamic.success': '成功',
-                'dynamic.failed': '失败',
-                'dynamic.searchNoResults': '搜索结果将显示在这里',
-                'dynamic.percentage': '%',
-                'dynamic.date': '日期',
-                'dynamic.time': '时间',
-                
-                // 其他
                 'common.loading': '加载中...',
-                'common.success': '成功',
-                'common.error': '错误',
-                'common.failed': '失败',
-                'common.noData': '暂无数据',
+                'common.noData': '暂无数据'
             },
             en: {
-                // Navigation and General
-                'navbar.title': 'AI Common Platform v2.1.0',
-                'navbar.qa': '💬 Q&A Center',
-                'navbar.prompt': '📝 Prompt Management',
-                'navbar.rag': '📚 Knowledge Base',
-                'navbar.agent': '🤖 Agent Tools',
-                'navbar.integration': '🔗 System Integration',
-                'navbar.llm': '🧠 LLM Models',
-                'navbar.monitor': '📊 Monitor Panel',
-                'navbar.language': 'Language',
-                
-                // Q&A Page
-                'qa.question': 'Enter your question...',
+                'navbar.qa': 'Q&A Center',
+                'navbar.prompt': 'Prompts',
+                'navbar.rag': 'Knowledge',
+                'navbar.integration': 'Integration',
+                'navbar.llm': 'LLM Models',
+                'navbar.monitor': 'Monitor',
+                'qa.title': 'Q&A Center',
+                'qa.subtitle': 'Ask questions and get intelligent AI-powered answers',
+                'qa.placeholder': 'Enter your question...',
                 'qa.ask': 'Ask',
-                'qa.processing': 'Processing...',
-                'qa.enableTrace': 'Show Call Chain',
-                'qa.history': 'Answer History',
-                'qa.search': 'Knowledge Search',
-                'qa.trace': 'Call Chain Trace',
-                'qa.noHistory': 'No answer history',
+                'qa.enableTrace': 'Show call chain trace',
+                'qa.history': 'History',
+                'qa.search': 'Search',
+                'qa.trace': 'Trace',
+                'qa.emptyHistory': 'Your answers will appear here after asking',
+                'qa.emptySearch': 'Search results will appear here',
+                'qa.emptyTrace': 'Enable "Show call chain trace" to see the processing flow',
+                'qa.serviceStatus': 'Service Status',
+                'qa.allOnline': 'All services online',
+                'qa.systemInfo': 'System Info',
+                'qa.version': 'Version',
+                'qa.environment': 'Environment',
+                'qa.model': 'Model',
                 'qa.confidence': 'Confidence',
                 'qa.duration': 'Duration',
-                'qa.viewTrace': '🔍 View Trace',
-                'qa.noTraceData': 'No call chain data. Please ask a question first.',
-                'qa.traceDetail': '📊 Call Chain Details',
-                'qa.traceId': 'Trace ID',
-                'qa.steps': 'Steps',
-                'qa.stepDetail': '🔄 Processing Steps and Details',
-                'qa.stage': 'Stage',
-                'qa.purpose': 'Purpose',
-                'qa.documentFound': 'Retrieved {{count}} relevant documents',
-                'qa.noDocument': 'No relevant documents found',
-                'qa.retrievalError': 'Retrieval Error',
-                
-                // Q&A Page - Additional tab labels and messages
-                'qa.answerHistory': 'Answer History',
-                'qa.knowledgeSearch': 'Knowledge Search',
-                'qa.callChainTrace': 'Call Chain Trace',
-                'qa.afterAsk': 'After asking, the answer will be displayed here',
-                'qa.searchResults': 'Search results will be displayed here',
-                'qa.traceMessage': 'After checking "Show Call Chain", the complete processing flow will be displayed when asking',
-                'qa.serviceStatus': '🟢 Service Status',
-                'qa.allServicesOk': '✅ All Services Normal',
-                'qa.systemInfo': '⚙️ System Information',
-                
-                // Knowledge Base Page
-                'rag.search': 'Search knowledge base...',
+                'qa.viewTrace': 'View Trace',
+                'prompt.title': 'Prompt Management',
+                'prompt.subtitle': 'View and manage AI assistant role configurations',
+                'rag.title': 'Knowledge Base',
+                'rag.subtitle': 'Enterprise knowledge base with document search and retrieval',
+                'rag.searchPlaceholder': 'Search documents...',
                 'rag.searchBtn': 'Search',
-                'rag.searching': 'Searching...',
-                'rag.noResults': 'No relevant content found',
-                'rag.category': 'Category',
-                'rag.source': 'Source',
-                'rag.similarity': 'Similarity',
-                'rag.tags': 'Tags',
-                'rag.loading': 'Loading...',
-                'rag.uncategorized': 'Uncategorized',
-                'rag.internal': 'Internal',
-                
-                // LLM Page
-                'llm.loading': 'Loading...',
-                'llm.noModels': 'No LLM models configured',
-                'llm.loadError': 'Load failed',
+                'rag.emptyResults': 'Enter keywords to search the knowledge base',
+                'integration.title': 'System Integration',
+                'integration.subtitle': 'Enterprise system knowledge base and intelligent queries',
+                'integration.searchTitle': 'Enterprise Knowledge Search',
+                'integration.searchPlaceholder': 'Search enterprise knowledge...',
+                'integration.searchBtn': 'Search',
+                'integration.categories': 'Browse by Category',
+                'integration.sales': 'Sales Dept',
+                'integration.hr': 'Human Resources',
+                'integration.finance': 'Finance',
+                'integration.technical': 'Technical',
+                'integration.supplyChain': 'Supply Chain',
+                'integration.marketing': 'Marketing',
+                'integration.connectedSystems': 'Connected Systems',
+                'llm.title': 'LLM Models',
+                'llm.subtitle': 'Configure and manage AI large language model interfaces',
                 'llm.provider': 'Provider',
-                'llm.endpoint': 'Endpoint',
                 'llm.maxTokens': 'Max Tokens',
                 'llm.temperature': 'Temperature',
-                'llm.baseUrl': 'Base URL',
-                'llm.createdAt': 'Created at',
-                'llm.updatedAt': 'Updated at',
-                'llm.readonly': '🔒 Read-only',
-                'llm.readonlyTip': 'Configured in database, cannot modify',
-                'llm.default': '★ Default',
-                'llm.enabled': '✅ Enabled',
-                'llm.disabled': '⊘ Disabled',
-                'llm.api': 'API Interface',
-                'llm.local': 'Local Model',
-                
-                // Prompt Page
-                'prompt.title': 'Prompt Template Library',
-                'prompt.noTemplates': 'No prompt templates',
-                'prompt.role': 'Role',
-                'prompt.noDescription': 'No description',
-                'prompt.management': '📝 Prompt Management',
-                'prompt.description': 'Manage and optimize AI prompt templates',
-                'prompt.templates': 'Prompt Template Library',
-                'prompt.add': 'Add Template',
-                'prompt.edit': 'Edit',
-                'prompt.delete': 'Delete',
-                
-                // RAG Page - Additional labels
-                'rag.documents': 'Knowledge Base Documents',
-                'rag.noDocuments': 'No knowledge base documents',
-                'rag.uploadDocument': 'Upload Document',
-                'rag.documentTitle': 'Document Title',
-                'rag.documentContent': 'Document Content',
-                
-                // Agent Page
-                'agent.title': '🤖 Agent Tools',
-                'agent.description': 'Intelligent agent tools and automated workflows',
-                'agent.noAgents': 'No agent tools',
-                
-                // System Integration Page
-                'integration.search': 'Search enterprise knowledge...',
-                'integration.searchBtn': 'Search',
-                'integration.category': 'By Category',
-                'integration.noResults': '⚠️ No relevant enterprise knowledge found',
-                'integration.title': '🔗 System Integration',
-                'integration.description': 'Connect and manage enterprise knowledge systems',
-                'integration.systems': 'Connected Systems',
-                'integration.erp': 'ERP System',
-                'integration.crm': 'CRM System',
-                'integration.api': 'API',
-                'integration.status': 'Status',
-                'integration.frequency': 'Update Frequency',
-                
-                // Monitor Panel
-                'monitor.title': '📊 Monitor Panel',
-                'monitor.description': 'Monitor system status and performance metrics in real-time',
+                'llm.default': 'Default',
+                'llm.enabled': 'Enabled',
+                'monitor.title': 'Monitor Panel',
+                'monitor.subtitle': 'Real-time system monitoring and performance statistics',
                 'monitor.developing': 'Monitor panel under development...',
-                
-                // Dynamic Content Translations
-                'dynamic.noHistory': 'No answer history',
-                'dynamic.confidence': 'Confidence',
-                'dynamic.unknownTime': 'Unknown time',
-                'dynamic.sales': '💼 Sales',
-                'dynamic.hr': '👥 HR',
-                'dynamic.technical': '🏗️ Technical',
-                'dynamic.finance': '💰 Finance',
-                'dynamic.supplyChain': '🚚 Supply Chain',
-                'dynamic.general': '💬 General',
-                'dynamic.question': 'Question',
-                'dynamic.answer': 'Answer',
-                'dynamic.details': 'Details',
-                'dynamic.loading': 'Loading...',
-                'dynamic.noTrace': 'No call chain data. Please ask a question first.',
-                'dynamic.traceSteps': '🔄 Processing Steps and Details',
-                'dynamic.traceId': 'Trace ID',
-                'dynamic.totalSteps': 'Total Steps',
-                'dynamic.duration': 'Total Duration',
-                'dynamic.documents': 'Related Documents',
-                'dynamic.dataInfo': 'Data Information',
-                'dynamic.step': 'Step',
-                'dynamic.noDocuments': 'No relevant documents found',
-                'dynamic.retrievalStatus': 'Retrieval Status',
-                'dynamic.success': 'Success',
-                'dynamic.failed': 'Failed',
-                'dynamic.searchNoResults': 'Search results will be displayed here',
-                'dynamic.percentage': '%',
-                'dynamic.date': 'Date',
-                'dynamic.time': 'Time',
-                'integration.found': 'Found',
-                'integration.items': 'relevant enterprise knowledge',
-                'integration.source': 'Source',
-                'integration.tags': 'Tags',
-                
-                // Errors and Status
-                'error.required': 'Please enter {{field}}',
-                'error.search': 'Search failed',
-                'error.loading': 'Loading failed',
-                'status.searching': 'Searching...',
-                'status.loading': 'Loading...',
-                'status.success': 'Success',
-                'status.error': 'Error',
-                
-                // LLM Management
-                'llm.management': 'LLM Management',
-                'llm.description': 'Configure, manage and select AI large model interface',
-                'llm.configDb': 'Database Configuration',
-                'llm.configDbTip': 'These models are configured in the database (read-only)',
-                'llm.defaultModel': 'Default Usage',
-                
-                // Others
                 'common.loading': 'Loading...',
-                'common.success': 'Success',
-                'common.error': 'Error',
-                'common.failed': 'Failed',
-                'common.noData': 'No data',
+                'common.noData': 'No data'
             }
         };
 
-        // 当前语言
         let currentLanguage = localStorage.getItem('language') || 'zh';
 
-        // 翻译函数
-        function t(key, replacements = {}) {
-            let text = i18n[currentLanguage]?.[key] || i18n['zh'][key] || key;
-            
-            // 处理占位符替换
-            Object.entries(replacements).forEach(([placeholder, value]) => {
-                text = text.replace(`{{${placeholder}}}`, value);
-            });
-            
-            return text;
+        function t(key) {
+            return i18n[currentLanguage]?.[key] || i18n['en'][key] || key;
         }
 
-        // 切换语言函数
         function setLanguage(lang) {
             currentLanguage = lang;
             localStorage.setItem('language', lang);
             updatePageLanguage();
         }
 
-        // 更新页面语言
         function updatePageLanguage() {
-            // 更新所有带有 data-i18n 属性的元素
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                const translatedText = t(key);
-                
-                if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'submit')) {
-                    el.value = translatedText;
-                } else if (el.tagName === 'TEXTAREA') {
-                    el.placeholder = translatedText;
-                } else if (el.tagName === 'LI' || el.classList.contains('nav-item')) {
-                    // 对于导航栏项，保留emoji但更新文本
-                    const emoji = el.textContent.match(/^[\ud83c-\ud83f][\udc00-\udfff]|\ud83d[\ude00-\ude4f]/)?.[0] || '';
-                    el.textContent = emoji ? emoji + ' ' + translatedText.replace(/^[\ud83c-\ud83f][\udc00-\udfff]|\ud83d[\ude00-\ude4f]\s*/, '') : translatedText;
-                } else {
-                    el.textContent = translatedText;
-                }
+                el.textContent = t(key);
             });
             
-            // 更新所有带有 data-i18n-placeholder 属性的输入框
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
                 el.placeholder = t(key);
             });
             
-            // 更新语言切换按钮状态
             document.querySelectorAll('.language-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.lang === currentLanguage);
             });
-            
-            // 如果某些页面内容已加载，重新刷新显示
-            if (document.getElementById('llmContainer') && document.querySelector('[data-page-id="llm"].active')) {
-                loadLLMModels();
-            }
         }
 
-        // ==================== 初始化 ====================
+        // ==================== Initialize ====================
         
-        // 隐藏加载遮罩
         function hideLoadingMask() {
             const mask = document.getElementById('loadingMask');
             if (mask) {
                 mask.classList.add('hidden');
-                // 300ms 后移除 DOM
-                setTimeout(() => {
-                    if (mask.parentNode) mask.remove();
-                }, 300);
+                setTimeout(() => mask.remove(), 350);
             }
         }
 
-        // ==================== 全局日志函数 ====================
-        window.debugLogs = [];
-        
-        function addDebugLog(msg) {
-            console.log(msg);
-            window.debugLogs.push(msg);
-            
-            const debugPanel = document.getElementById('debugPanel');
-            const debugContent = document.getElementById('debugContent');
-            if (debugContent) {
-                debugContent.textContent += msg + '\n';
-                debugPanel.style.display = 'block'; // Show debug panel
-            }
-        }
-
-        addDebugLog('📋 页面开始加载，readyState: ' + document.readyState);
-
-        // 页面加载完成时隐藏加载遮罩
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', hideLoadingMask);
-        } else {
-            hideLoadingMask();
-        }
-
-        // 全局变量
         window.currentTraceData = null;
         window.isAnswering = false;
 
-        // ==================== 初始化数据加载 ====================
-        
         async function loadInitialData() {
             try {
-                // 并行加载所有数据
-                await Promise.all([
-                    loadQAHistory(),
-                    loadPrompts()
-                ]);
+                await Promise.all([loadQAHistory(), loadPrompts()]);
             } catch (error) {
-                console.error('初始化数据加载失败:', error);
+                console.error('Failed to load initial data:', error);
             }
         }
 
-        // 加载问答历史
+        // ==================== Q&A History ====================
+        
         async function loadQAHistory() {
             try {
                 const response = await fetch('/api/qa/history/all');
                 const data = await response.json();
                 
-                if (data && data.history && data.history.length > 0) {
+                if (data?.history?.length > 0) {
                     displayQAHistory(data.history);
-                    console.log('✅ 加载了', data.history.length, '条问答历史记录');
                 }
             } catch (error) {
-                console.error('加载问答历史失败:', error);
+                console.error('Failed to load Q&A history:', error);
             }
         }
 
-        // 显示问答历史
         function displayQAHistory(history) {
             const responseArea = document.getElementById('responseArea');
-            const historyContainer = document.getElementById('history-tab');
-            
-            if (!responseArea && !historyContainer) {
-                console.error('❌ 找不到显示历史的容器');
-                return;
-            }
-
-            const container = responseArea || historyContainer;
+            if (!responseArea) return;
 
             if (history.length === 0) {
-                container.innerHTML = `<div style="text-align: center; padding: 40px; color: #999;">${t('dynamic.noHistory')}</div>`;
+                responseArea.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <p>${t('qa.emptyHistory')}</p>
+                    </div>
+                `;
                 return;
             }
 
-            let html = '<div style="display: flex; flex-direction: column; gap: 15px; padding: 10px;">';
-            history.forEach((item, idx) => {
-                const timestamp = item.created_at ? new Date(item.created_at).toLocaleString(currentLanguage === 'zh' ? 'zh-CN' : 'en-US') : t('dynamic.unknownTime');
-                const confidence = item.confidence ? (item.confidence * 100).toFixed(0) + t('dynamic.percentage') : 'N/A';
-                const typeLabel = {
-                    'sales_analysis': t('dynamic.sales'),
-                    'hr_policy': t('dynamic.hr'),
-                    'technical_design': t('dynamic.technical'),
-                    'finance_budget': t('dynamic.finance'),
-                    'supply_chain': t('dynamic.supplyChain'),
-                    'general': t('dynamic.general')
-                }[item.question_type] || '📌 ' + item.question_type;
+            let html = '';
+            history.forEach(item => {
+                const timestamp = item.created_at ? new Date(item.created_at).toLocaleString() : '';
+                const confidence = item.confidence ? (item.confidence * 100).toFixed(0) + '%' : 'N/A';
                 
                 html += `
-                    <div style="background: white; padding: 18px; border-radius: 8px; border-left: 4px solid #667eea; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" 
-                         onmouseover="this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.15)'; this.style.transform='translateX(4px)'" 
-                         onmouseout="this.style.boxShadow='0 2px 4px rgba(0,0,0,0.05)'; this.style.transform='translateX(0)'"
-                         onclick="showQADetail(${idx})">
-                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
-                            <div style="flex: 1;">
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                    <span style="background: #667eea; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; font-weight: 500;">${typeLabel}</span>
-                                </div>
-                                <h4 style="margin: 0 0 8px 0; color: #333; font-size: 14px; font-weight: 600;">${t('dynamic.question')}: ${item.question}</h4>
-                                <p style="margin: 0; color: #666; font-size: 13px; line-height: 1.6; max-height: 60px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${t('dynamic.answer')}: ${item.answer}</p>
-                            </div>
-                            <div style="text-align: right; font-size: 12px; color: #999; white-space: nowrap; min-width: 100px;">
-                                <div style="color: #667eea; font-weight: 600; margin-bottom: 4px;">${t('dynamic.confidence')}: ${confidence}</div>
-                                <div>${timestamp.split(' ')[0]}</div>
-                                <div>${timestamp.split(' ')[1]}</div>
-                            </div>
+                    <div class="qa-item">
+                        <div class="qa-question">${item.question}</div>
+                        <div class="qa-answer">${item.answer.replace(/\n/g, '<br>')}</div>
+                        <div class="qa-meta">
+                            <span class="badge badge-success">${t('qa.confidence')}: ${confidence}</span>
+                            <span>${timestamp}</span>
                         </div>
                     </div>
                 `;
             });
-            html += '</div>';
             
-            container.innerHTML = html;
-            console.log('✅ 已显示', history.length, '条问答历史');
+            responseArea.innerHTML = html;
         }
 
-        // 显示问答详情
-        window.showQADetail = function(index) {
-            const items = document.querySelectorAll('[onclick*="showQADetail"]');
-            if (index < items.length) {
-                const item = items[index];
-                const question = item.querySelector('h4').textContent.replace('Q: ', '');
-                const answer = item.querySelector('p').textContent.replace('A: ', '');
-                const details = `
-问题：${question}
-
-回答：${answer}
-                `.trim();
-                alert(details);
-            }
-        }
-
-        // 加载Prompt模板
+        // ==================== Prompts ====================
+        
         async function loadPrompts() {
             try {
                 const response = await fetch('/api/prompts');
                 const data = await response.json();
-                
-                // API 返回 templates 字段
                 const prompts = data.templates || data.prompts || [];
-                if (prompts && prompts.length > 0) {
+                if (prompts.length > 0) {
                     displayPrompts(prompts);
-                    console.log('✅ 加载了', prompts.length, '个Prompt模板');
                 }
             } catch (error) {
-                console.error('加载Prompt模板失败:', error);
+                console.error('Failed to load prompts:', error);
             }
         }
 
-        // 显示Prompt模板
         function displayPrompts(prompts) {
-            const promptContainer = document.getElementById('promptContainer');
-            
-            if (!promptContainer) {
-                console.error('❌ 找不到 promptContainer 元素');
+            const container = document.getElementById('promptContainer');
+            if (!container) return;
+
+            if (!prompts?.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        <p>${t('common.noData')}</p>
+                    </div>
+                `;
                 return;
             }
 
-            if (!prompts || prompts.length === 0) {
-                promptContainer.innerHTML = '<p style="color: #999; text-align: center; padding: 30px;">暂无Prompt模板</p>';
-                return;
-            }
-
-            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 20px;">';
+            let html = '<div class="grid-cards">';
             
             prompts.forEach(prompt => {
-                const icon = {
-                    'general_assistant': '💬',
-                    'sales_analyst': '💼',
-                    'hr_manager': '👥',
-                    'tech_architect': '🏗️',
-                    'financial_analyst': '💰',
-                    'supply_chain_manager': '🚚'
-                }[prompt.role] || '🤖';
-
-                const systemPromptPreview = (prompt.system_prompt || '').substring(0, 80) + '...';
-
+                const preview = (prompt.system_prompt || '').substring(0, 100) + '...';
                 html += `
-                    <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s;"
-                         onmouseover="this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.15)'; this.style.transform='translateY(-2px)'"
-                         onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'; this.style.transform='translateY(0)'">
-                        <div style="font-size: 36px; margin-bottom: 12px;">${icon}</div>
-                        <h3 style="margin: 0 0 8px 0; color: #333; font-size: 16px; font-weight: 600;">${prompt.name}</h3>
-                        <p style="margin: 0 0 12px 0; color: #999; font-size: 12px; line-height: 1.5;">${prompt.description || '暂无描述'}</p>
-                        <div style="background: #f5f5f5; padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; color: #666; max-height: 80px; overflow-y: auto;">
-                            ${systemPromptPreview}
-                        </div>
-                        <div style="display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid #f0f0f0;">
-                            <span style="display: inline-block; background: #667eea; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 500;">${prompt.role}</span>
-                        </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">${prompt.name.charAt(0)}</div>
+                        <div class="feature-title">${prompt.name}</div>
+                        <div class="feature-desc">${prompt.description || preview}</div>
+                        <div class="feature-badge">${prompt.role}</div>
                     </div>
                 `;
             });
             
             html += '</div>';
-            promptContainer.innerHTML = html;
-            console.log('✅ 已显示', prompts.length, '个Prompt模板');
+            container.innerHTML = html;
         }
 
-        // ==================== 导航 ====================
+        // ==================== Navigation ====================
         
         function switchPage(pageId) {
-            // 隐藏所有页面
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            
-            // 取消所有导航项激活
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             
-            // 显示选中页面
             const page = document.querySelector(`[data-page-id="${pageId}"]`);
             if (page) page.classList.add('active');
             
-            // 激活导航项
             const navItem = document.querySelector(`[data-page="${pageId}"]`);
             if (navItem) navItem.classList.add('active');
+            
+            // Load LLM models when switching to LLM page
+            if (pageId === 'llm') {
+                loadLLMModels();
+            }
         }
 
-        // 导航项点击事件
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', function() {
                 switchPage(this.dataset.page);
             });
         });
 
-        // ==================== Tab 切换 ====================
+        // ==================== Tabs ====================
         
         function switchTab(event, tabName) {
-            // 隐藏所有 Tab 内容
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            
-            // 取消所有 Tab 按钮激活
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             
-            // 显示选中 Tab
             const content = document.getElementById(`${tabName}-tab`);
             if (content) content.classList.add('active');
-            
-            // 激活 Tab 按钮
             event.target.classList.add('active');
             
-            // 切换到调用链追踪 Tab 时，立即显示数据
             if (tabName === 'trace') {
                 displayTrace();
             }
         }
 
-        // ==================== 问答功能 ====================
+        // ==================== Q&A Functions ====================
         
         async function askQuestion() {
             const question = document.getElementById('questionInput').value.trim();
             const enableTrace = document.getElementById('enableTrace').checked;
             
             if (!question) {
-                alert('请输入问题');
+                alert(currentLanguage === 'zh' ? '请输入问题' : 'Please enter a question');
                 return;
             }
 
@@ -1319,55 +1728,42 @@
             const progressText = document.getElementById('progressText');
             
             askBtn.disabled = true;
-            askBtn.textContent = '处理中...';
             progressContainer.style.display = 'block';
             progressFill.style.width = '0%';
-            progressText.textContent = '处理中: 0%';
 
-            // 模拟进度条增长
             let progress = 0;
             const progressInterval = setInterval(() => {
                 if (progress < 90) {
-                    progress += Math.random() * 20;
+                    progress += Math.random() * 15;
                     progressFill.style.width = progress + '%';
-                    progressText.textContent = '处理中: ' + Math.floor(progress) + '%';
+                    progressText.textContent = `Processing: ${Math.floor(progress)}%`;
                 }
-            }, 300);
+            }, 200);
 
             const responseArea = document.getElementById('responseArea');
-            responseArea.innerHTML = '<div style="text-align: center; padding: 30px;" data-placeholder="loading"><div style="display: inline-block; width: 30px; height: 30px; border: 3px solid #f0f0f0; border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite;"></div><div style="margin-top: 10px; color: #999;">正在处理...</div></div>';
-
+            
             try {
-                // 始终使用 trace 端点以获取完整的调用链信息
-                const endpoint = '/api/trace/qa/ask';
-                const response = await fetch(endpoint, {
+                const response = await fetch('/api/trace/qa/ask', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ question, token: null })
                 });
 
                 const data = await response.json();
-                console.log('API Response:', data);
-
-                // 保存调用链数据
+                
                 if (data.trace) {
                     window.currentTraceData = data.trace;
-                    console.log('✅ Trace data saved:', window.currentTraceData);
-                } else {
-                    console.warn('⚠️ No trace data in response');
                 }
 
                 clearInterval(progressInterval);
                 progressFill.style.width = '100%';
-                progressText.textContent = '处理中: 100%';
 
                 setTimeout(() => {
                     displayResponse(data, enableTrace);
                     progressContainer.style.display = 'none';
                     askBtn.disabled = false;
-                    askBtn.textContent = '提问';
                     window.isAnswering = false;
-                }, 500);
+                }, 300);
 
                 document.getElementById('questionInput').value = '';
 
@@ -1375,10 +1771,11 @@
                 console.error('Error:', error);
                 clearInterval(progressInterval);
                 
-                // 显示模拟数据
                 const mockData = {
                     question,
-                    answer: '根据您的问题进行分析...\n\n这是一个示例回答。实际回答将根据 RAG 检索结果和 LLM 生成的内容组成。',
+                    answer: currentLanguage === 'zh' 
+                        ? '根据您的问题进行分析...\n\n这是一个示例回答。实际回答将根据知识库检索结果和AI生成。'
+                        : 'Analyzing your question...\n\nThis is a sample answer. The actual answer will be based on knowledge base retrieval and AI generation.',
                     confidence: 0.85,
                     execution_time: 0.45,
                     trace: {
@@ -1386,9 +1783,9 @@
                         total_time: '0.45s',
                         total_steps: 3,
                         steps: [
-                            { seq: 1, service: 'QA Entry', stage: '输入处理', purpose: '接收问题文本', status: 'success' },
-                            { seq: 2, service: 'RAG Service', stage: '知识检索', purpose: '搜索相关文档', status: 'success' },
-                            { seq: 3, service: 'LLM Service', stage: 'LLM 生成', purpose: '生成回答', status: 'success' }
+                            { seq: 1, service: 'QA Entry', stage: 'Input Processing', purpose: 'Receive question', status: 'success' },
+                            { seq: 2, service: 'RAG Service', stage: 'Knowledge Retrieval', purpose: 'Search documents', status: 'success' },
+                            { seq: 3, service: 'LLM Service', stage: 'Response Generation', purpose: 'Generate answer', status: 'success' }
                         ]
                     }
                 };
@@ -1397,27 +1794,25 @@
                 
                 progressContainer.style.display = 'none';
                 askBtn.disabled = false;
-                askBtn.textContent = '提问';
                 window.isAnswering = false;
             }
         }
 
         function displayResponse(data, showTrace) {
             const responseArea = document.getElementById('responseArea');
-            const hasTrace = data.trace && data.trace.steps && data.trace.steps.length > 0;
+            const hasTrace = data.trace?.steps?.length > 0;
             
-            // 移除旧的"正在处理"占位符（如果存在）
-            const placeholders = responseArea.querySelectorAll('[data-placeholder="loading"]');
-            placeholders.forEach(el => el.remove());
+            const existingEmpty = responseArea.querySelector('.empty-state');
+            if (existingEmpty) existingEmpty.remove();
             
             const html = `
                 <div class="qa-item">
-                    <div class="qa-question">Q: ${data.question || ''}</div>
+                    <div class="qa-question">${data.question || ''}</div>
                     <div class="qa-answer">${(data.answer || '').replace(/\n/g, '<br>')}</div>
                     <div class="qa-meta">
-                        <span>置信度: ${((data.confidence || 0.8) * 100).toFixed(0)}%</span> | 
-                        <span>耗时: ${(data.execution_time || 0.5).toFixed(2)}s</span>
-                        ${hasTrace ? `<button class="btn" style="margin-left: 10px; padding: 8px 16px; font-size: 12px; cursor: pointer;" onclick="viewTrace()">🔍 查看调用链</button>` : ''}
+                        <span class="badge badge-success">${t('qa.confidence')}: ${((data.confidence || 0.8) * 100).toFixed(0)}%</span>
+                        <span>${t('qa.duration')}: ${(data.execution_time || 0.5).toFixed(2)}s</span>
+                        ${hasTrace ? `<button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="viewTrace()">${t('qa.viewTrace')}</button>` : ''}
                     </div>
                 </div>
             `;
@@ -1425,613 +1820,269 @@
         }
 
         function viewTrace() {
-            console.log('viewTrace called, currentTraceData:', window.currentTraceData);
             displayTrace();
-            // 切换到追踪选项卡
             const traceTabs = document.querySelectorAll('.tab-btn');
-            if (traceTabs[2]) {
-                traceTabs[2].click();
-            }
+            if (traceTabs[2]) traceTabs[2].click();
         }
 
         function displayTrace() {
-            let trace = window.currentTraceData;
+            const trace = window.currentTraceData;
+            const traceArea = document.getElementById('traceArea');
             
-            console.log('📍 displayTrace called');
-            console.log('📍 window.currentTraceData:', window.currentTraceData);
-            console.log('📍 trace object:', trace);
-            
-            if (!trace) {
-                console.error('❌ No trace data available');
-                const message = t('dynamic.noTrace');
-                document.getElementById('traceArea').innerHTML = `<div style="background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 15px; border-radius: 6px; text-align: center;">ℹ️ ${message}</div>`;
-                return;
-            }
-            
-            if (!trace.steps || trace.steps.length === 0) {
-                console.error('❌ No steps in trace data');
-                document.getElementById('traceArea').innerHTML = '<div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 6px;">⚠️ ' + t('dynamic.noTrace') + '</div>';
+            if (!trace || !trace.steps?.length) {
+                traceArea.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                        <p>${t('qa.emptyTrace')}</p>
+                    </div>
+                `;
                 return;
             }
 
-            console.log(`✅ Found ${trace.steps.length} steps in trace`);
-            
-            // 收集各个步骤的回答信息
-            let answerInfo = '';
-            if (trace.steps) {
-                trace.steps.forEach((step, idx) => {
-                    if (step.response_data || step.output || step.result) {
-                        const data = step.response_data || step.output || step.result;
-                        if (typeof data === 'object') {
-                            answerInfo += `\n【${step.service} 输出】\n${JSON.stringify(data, null, 2)}`;
-                        } else {
-                            answerInfo += `\n【${step.service} 输出】\n${data}`;
-                        }
-                    }
-                });
-            }
-            
             let html = `
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                    <div style="font-weight: 600; margin-bottom: 15px; font-size: 16px;">${t('dynamic.traceSteps').split(' ')[0]} ${t('qa.traceDetail')}</div>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; font-size: 13px;">
-                        <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px;">
-                            <div style="opacity: 0.8;">${t('dynamic.traceId')}</div>
-                            <div style="font-weight: 600; font-size: 14px;">${trace.trace_id || 'N/A'}</div>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px;">
-                            <div style="opacity: 0.8;">${t('dynamic.totalSteps')}</div>
-                            <div style="font-weight: 600; font-size: 14px;">${trace.steps.length} ${currentLanguage === 'zh' ? '步' : 'steps'}</div>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px;">
-                            <div style="opacity: 0.8;">${t('qa.duration')}</div>
-                            <div style="font-weight: 600; font-size: 14px;">${trace.total_time || '0.5s'}</div>
-                        </div>
+                <div style="margin-bottom: 20px; padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <div style="display: flex; gap: 24px; font-size: 13px;">
+                        <div><span style="color: var(--text-muted);">Trace ID:</span> <span style="color: var(--text-primary); font-weight: 500;">${trace.trace_id}</span></div>
+                        <div><span style="color: var(--text-muted);">Steps:</span> <span style="color: var(--text-primary); font-weight: 500;">${trace.total_steps}</span></div>
+                        <div><span style="color: var(--text-muted);">Duration:</span> <span style="color: var(--text-primary); font-weight: 500;">${trace.total_time}</span></div>
                     </div>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <div style="font-weight: 600; margin-bottom: 15px; color: #333; font-size: 15px;">${t('dynamic.traceSteps')}</div>
+                <div class="trace-timeline">
             `;
 
-            trace.steps.forEach((step, idx) => {
-                const status = step.status === 'success' ? '✅' : step.status === 'error' ? '❌' : step.status === 'warning' ? '⚠️' : '🔹';
-                const duration = step.duration ? ` (${step.duration}ms)` : '';
-                
-                // 构建步骤详情
-                let stepDetail = ``;
-                stepDetail += `<strong>阶段:</strong> ${step.stage || 'N/A'}<br>`;
-                stepDetail += `<strong>用途:</strong> ${step.purpose || 'N/A'}<br>`;
-                if (duration) stepDetail += `<strong>耗时:</strong> ${duration}<br>`;
-                
-                // 提取关键信息：是否找到数据
-                let infoFound = false;
-                let dataInfo = '';
-                
-                // 检查RAG检索结果
-                if (step.stage && step.stage.includes('向量搜索')) {
-                    if (step.data) {
-                        const foundDocs = step.data.found_documents;
-                        const status = step.data.retrieval_status;
-                        
-                        if (foundDocs && foundDocs > 0) {
-                            dataInfo += `<div style="background: #e8f5e9; border-left: 3px solid #4caf50; padding: 8px; margin: 8px 0; border-radius: 4px;">`;
-                            dataInfo += `✅ <strong>检索到 ${foundDocs} 个相关文档</strong><br>`;
-                            if (step.data.documents && step.data.documents.length > 0) {
-                                dataInfo += `<div style="margin-top: 5px; font-size: 11px; color: #333;">`;
-                                step.data.documents.forEach(doc => {
-                                    dataInfo += `• ${doc.title || doc.category || '无标题'}<br>`;
-                                });
-                                dataInfo += `</div>`;
-                            }
-                            dataInfo += `</div>`;
-                            infoFound = true;
-                        } else if (status === 'no_results') {
-                            dataInfo += `<div style="background: #fff3cd; border-left: 3px solid #ffc107; padding: 8px; margin: 8px 0; border-radius: 4px;">`;
-                            dataInfo += `ℹ️ <strong>未找到相关文档</strong><br>`;
-                            dataInfo += `<span style="font-size: 11px;">未检索到与问题相关的知识库内容</span></div>`;
-                        } else if (step.data.error) {
-                            dataInfo += `<div style="background: #ffebee; border-left: 3px solid #f44336; padding: 8px; margin: 8px 0; border-radius: 4px;">`;
-                            dataInfo += `❌ <strong>检索错误</strong><br>`;
-                            dataInfo += `<span style="font-size: 11px;">${step.data.error}</span></div>`;
-                        }
-                    }
-                }
-                
-                // 检查向量化阶段
-                if (step.stage && step.stage.includes('向量化') && step.data) {
-                    dataInfo += `<div style="background: #e3f2fd; border-left: 3px solid #2196f3; padding: 8px; margin: 8px 0; border-radius: 4px;">`;
-                    dataInfo += `📐 <strong>${currentLanguage === 'zh' ? '向量转换成功' : 'Vector Conversion Successful'}</strong><br>`;
-                    dataInfo += `<span style="font-size: 11px;">${currentLanguage === 'zh' ? '向量维度' : 'Vector Dimension'}: ${step.data.vector_dim || 'N/A'} | ${currentLanguage === 'zh' ? '模型' : 'Model'}: ${step.data.embedding_model || 'N/A'}</span></div>`;
-                }
-                
-                // 添加一般数据信息
-                if (step.data && (step.response_data || step.output || step.result || step.answer || Object.keys(step.data).length > 0)) {
-                    const data = step.response_data || step.output || step.result || step.answer || step.data;
-                    
-                    if (!dataInfo && typeof data === 'object' && Object.keys(data).length > 0) {
-                        stepDetail += `<strong>${t('dynamic.dataInfo')}:</strong><br>`;
-                        const dataKeys = Object.keys(data).filter(k => k !== 'documents' && k !== 'embedding_model' && k !== 'vector_dim');
-                        if (dataKeys.length > 0) {
-                            stepDetail += `<div style="background: #f5f5f5; padding: 8px; margin-top: 5px; border-radius: 4px; font-size: 11px;">`;
-                            dataKeys.forEach(key => {
-                                const val = data[key];
-                                if (typeof val === 'object') {
-                                    stepDetail += `<div style="margin: 5px 0;"><strong>${key}:</strong> ${JSON.stringify(val)}</div>`;
-                                } else {
-                                    stepDetail += `<div style="margin: 5px 0;"><strong>${key}:</strong> ${val}</div>`;
-                                }
-                            });
-                            stepDetail += `</div><br>`;
-                        }
-                    }
-                    
-                    if (typeof data === 'string') {
-                        stepDetail += `<strong>${currentLanguage === 'zh' ? '结果' : 'Result'}:</strong> <span style="color: #555; word-break: break-all;">${data}</span><br>`;
-                    }
-                }
-                
-                // 添加检索结果到detail
-                if (dataInfo) {
-                    stepDetail += dataInfo;
-                }
-                
+            trace.steps.forEach(step => {
                 html += `
-                    <div style="background: ${step.status === 'error' ? '#ffebee' : step.status === 'warning' ? '#fff3cd' : '#f9f9f9'}; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid ${step.status === 'error' ? '#f44336' : step.status === 'warning' ? '#ffc107' : '#667eea'};">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span style="font-weight: 600; color: #333;">Step ${step.seq || idx + 1}: ${step.service || '未知服务'}</span>
-                            <span style="font-size: 16px; cursor: help;" title="状态: ${step.status}">${status}</span>
+                    <div class="trace-step ${step.status}">
+                        <div class="trace-header">
+                            <span class="trace-stage">${step.seq}. ${step.stage}</span>
+                            <span class="trace-service">${step.service}</span>
                         </div>
-                        <div style="font-size: 12px; color: #666; line-height: 1.6;">
-                            ${stepDetail}
-                        </div>
-                        ${step.error ? `<div style="color: #f44336; font-size: 12px; margin-top: 5px;"><strong>错误:</strong> ${step.error}</div>` : ''}
+                        <div class="trace-purpose">${step.purpose}</div>
                     </div>
                 `;
             });
 
-            html += `</div>`;
-            console.log('✅ displayTrace rendering complete');
-            document.getElementById('traceArea').innerHTML = html;
+            html += '</div>';
+            traceArea.innerHTML = html;
         }
 
-        // ==================== 搜索功能 ====================
+        // ==================== Search Functions ====================
         
         async function searchKnowledge() {
             const query = document.getElementById('searchInput').value.trim();
-            if (!query) {
-                alert('请输入搜索词');
-                return;
-            }
+            if (!query) return;
 
-            const results = document.getElementById('searchResults');
-            results.innerHTML = '<p style="color: #999; text-align: center;">搜索中...</p>';
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-muted);">Searching...</div>';
 
             try {
-                const response = await fetch('/api/rag/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, top_k: 5 })
-                });
+                const response = await fetch(`/api/rag/search?query=${encodeURIComponent(query)}`);
                 const data = await response.json();
-                // RAG API 返回 documents，不是 results
-                displaySearchResults(data.documents || data.results || []);
-            } catch (error) {
-                console.error('搜索错误:', error);
-                displaySearchResults([
-                    { title: `关于 "${query}" 的搜索结果`, content: '示例搜索结果...', similarity: 0.95 }
-                ]);
-            }
-        }
-
-        function displaySearchResults(items) {
-            const html = items.map(item => `
-                <div class="qa-item">
-                    <div class="qa-question">${item.title || ''}</div>
-                    <div class="qa-answer">${item.content || ''}</div>
-                    <div class="qa-meta">
-                        分类: ${item.category || '未分类'} | 
-                        来源: ${item.source || '内部'}
-                    </div>
-                </div>
-            `).join('');
-            document.getElementById('searchResults').innerHTML = html || '<p style="color: #999; text-align: center;">未找到相关内容</p>';
-        }
-
-        // ==================== 系统集成页面函数 ====================
-        async function searchIntegrationKnowledge() {
-            const searchInput = document.getElementById('integrationSearchInput').value.trim();
-            if (!searchInput) {
-                alert('请输入搜索关键词');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/rag/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: searchInput, top_k: 10 })
-                });
                 
-                const data = await response.json();
-                displayIntegrationResults(data.documents || []);
-            } catch (error) {
-                console.error('搜索失败:', error);
-                alert('搜索失败: ' + error.message);
-            }
-        }
-
-        async function searchIntegrationByCategory(category) {
-            const categoryLabels = {
-                'sales': '销售部门',
-                'hr': '人力资源',
-                'finance': '财务部门',
-                'technical': '技术部门',
-                'supply_chain': '供应链',
-                'marketing': '市场营销',
-                'security': '安全合规',
-                'operations': '运营管理'
-            };
-            
-            document.getElementById('integrationSearchInput').value = categoryLabels[category] || category;
-            
-            try {
-                const response = await fetch('/api/rag/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: categoryLabels[category] || category, top_k: 15, category: category })
-                });
-                
-                const data = await response.json();
-                displayIntegrationResults(data.documents || []);
-            } catch (error) {
-                console.error('搜索失败:', error);
-            }
-        }
-
-        function displayIntegrationResults(documents) {
-            if (!documents || documents.length === 0) {
-                document.getElementById('integrationResults').innerHTML = '<div style="text-align: center; padding: 20px; color: #999;">⚠️ 未找到相关企业知识</div>';
-                return;
-            }
-            
-            const categoryColors = {
-                'sales': '#667eea',
-                'hr': '#f5576c',
-                'finance': '#00f2fe',
-                'technical': '#fee140',
-                'supply_chain': '#330867',
-                'marketing': '#fed6e3',
-                'security': '#ff6a88',
-                'product': '#667eea',
-                'operations': '#764ba2'
-            };
-            
-            let html = `<div style="border-top: 2px solid #ddd; padding-top: 15px;">
-                <div style="color: #999; margin-bottom: 15px;">找到 <strong>${documents.length}</strong> 条相关企业知识</div>`;
-            
-            documents.forEach((doc, idx) => {
-                const bgColor = categoryColors[doc.category] || '#667eea';
-                const categoryName = {
-                    'sales': '💼 销售',
-                    'hr': '👥 HR',
-                    'finance': '💰 财务',
-                    'technical': '🔧 技术',
-                    'supply_chain': '🚚 供应链',
-                    'marketing': '📢 营销',
-                    'security': '🔐 安全',
-                    'product': '📦 产品',
-                    'operations': '⚙️ 运营'
-                }[doc.category] || doc.category;
-                
-                html += `
-                    <div style="background: #f9f9f9; padding: 15px; margin-bottom: 12px; border-radius: 8px; border-left: 4px solid ${bgColor};">
-                        <div style="display: flex; justify-content: space-between; align-items: start;">
-                            <div style="flex: 1;">
-                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                                    <span style="background: ${bgColor}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap;">${categoryName}</span>
-                                    <h4 style="margin: 0; color: #333; font-size: 14px;">${doc.title || '无标题'}</h4>
-                                </div>
-                                <p style="margin: 8px 0; color: #555; font-size: 13px; line-height: 1.5;">${(doc.content || '').substring(0, 200)}</p>
-                                <div style="display: flex; gap: 15px; font-size: 12px; color: #999; margin-top: 8px;">
-                                    <span>📌 来源: ${doc.source || '内部系统'}</span>
-                                    ${doc.tags && doc.tags.length > 0 ? `<span>🏷️ ${doc.tags.join(', ')}</span>` : ''}
+                if (data.results?.length > 0) {
+                    let html = '';
+                    data.results.forEach(result => {
+                        html += `
+                            <div class="search-result">
+                                <div class="search-result-title">${result.title || result.doc_id || 'Document'}</div>
+                                <div class="search-result-content">${result.content?.substring(0, 200) || ''}...</div>
+                                <div class="search-result-meta">
+                                    <span class="tag">${result.category || 'General'}</span>
+                                    <span>Score: ${(result.score * 100).toFixed(0)}%</span>
                                 </div>
                             </div>
+                        `;
+                    });
+                    resultsContainer.innerHTML = html;
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <p>No results found for "${query}"</p>
                         </div>
+                    `;
+                }
+            } catch (error) {
+                resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <p>Search failed. Please try again.</p>
                     </div>
                 `;
-            });
-            
-            html += '</div>';
-            document.getElementById('integrationResults').innerHTML = html;
-        }
-
-        // 回车键事件
-        document.getElementById('questionInput')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') askQuestion();
-        });
-
-        document.getElementById('searchInput')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchKnowledge();
-        });
-
-        document.getElementById('integrationSearchInput')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchIntegrationKnowledge();
-        });
-
-        // ==================== 页面加载完成后初始化数据 ====================
-        addDebugLog('📋 脚本开始执行');
-        
-        // 直接获取并显示数据
-        async function initializeData() {
-            try {
-                addDebugLog('🚀 开始初始化...');
-                
-                // 加载历史记录
-                const histResp = await fetch('/api/qa/history/all');
-                const histData = await histResp.json();
-                addDebugLog('📊 历史记录API返回: ' + JSON.stringify(histData).substring(0, 80));
-                
-                if (histData.history && histData.history.length > 0) {
-                    const historyContainer = document.getElementById('responseArea');
-                    if (historyContainer) {
-                        let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
-                        histData.history.forEach(item => {
-                            html += `<div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #667eea;">
-                                <div style="font-size: 13px; color: #333; font-weight: 500; margin-bottom: 5px;">Q: ${item.question}</div>
-                                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">A: ${item.answer.substring(0, 100)}...</div>
-                                <div style="font-size: 11px; color: #999;">置信度: ${(item.confidence*100).toFixed(0)}% | ${new Date(item.created_at).toLocaleDateString('zh-CN')}</div>
-                            </div>`;
-                        });
-                        html += '</div>';
-                        historyContainer.innerHTML = html;
-                        addDebugLog('✅ 历史记录已显示');
-                    }
-                }
-                
-                // 加载Prompt模板
-                const promptResp = await fetch('/api/prompts');
-                const promptData = await promptResp.json();
-                addDebugLog('📊 Prompt API返回: ' + JSON.stringify(promptData).substring(0, 80));
-                
-                if (promptData.templates && promptData.templates.length > 0) {
-                    const promptContainer = document.getElementById('promptContainer');
-                    if (promptContainer) {
-                        let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; padding: 15px;">';
-                        promptData.templates.forEach(prompt => {
-                            const icons = {'general_assistant': '💬', 'sales_analyst': '💼', 'hr_manager': '👥', 'tech_architect': '🏗️', 'financial_analyst': '💰', 'supply_chain_manager': '🚚'};
-                            const icon = icons[prompt.role] || '🤖';
-                            html += `<div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                <div style="font-size: 28px; margin-bottom: 8px;">${icon}</div>
-                                <div style="font-size: 14px; color: #333; font-weight: 600; margin-bottom: 6px;">${prompt.name}</div>
-                                <div style="font-size: 11px; color: #999; margin-bottom: 10px;">${prompt.description || '暂无描述'}</div>
-                                <div style="padding-top: 8px; border-top: 1px solid #f0f0f0;">
-                                    <span style="display: inline-block; background: #667eea; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px;">${prompt.role}</span>
-                                </div>
-                            </div>`;
-                        });
-                        html += '</div>';
-                        promptContainer.innerHTML = html;
-                        addDebugLog('✅ Prompt模板已显示');
-                    }
-                }
-                
-                addDebugLog('✅ 初始化完成！');
-            } catch (err) {
-                addDebugLog('❌ 错误: ' + err.message);
-                console.error(err);
             }
         }
 
-        // ==================== 知识库功能 ====================
-        
         async function searchRagDocuments() {
             const query = document.getElementById('ragSearchInput').value.trim();
+            if (!query) return;
+
             const resultsContainer = document.getElementById('ragResults');
-            
-            if (!query) {
-                // 如果没有搜索词，显示全部文档
-                resultsContainer.innerHTML = '<p style="color: #999; text-align: center;">请输入搜索关键词</p>';
-                return;
-            }
-            
-            resultsContainer.innerHTML = '<p style="color: #999; text-align: center;">搜索中...</p>';
-            
+            resultsContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-muted);">Searching...</div>';
+
             try {
-                const response = await fetch('/api/rag/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, top_k: 10 })
-                });
+                const response = await fetch(`/api/rag/search?query=${encodeURIComponent(query)}`);
                 const data = await response.json();
-                displayRagResults(data.documents || data.results || []);
-            } catch (error) {
-                console.error('知识库搜索失败:', error);
-                resultsContainer.innerHTML = '<p style="color: #f44336; text-align: center;">搜索失败，请重试</p>';
-            }
-        }
-        
-        function displayRagResults(results) {
-            const container = document.getElementById('ragResults');
-            
-            if (!results || results.length === 0) {
-                container.innerHTML = '<p style="color: #999; text-align: center;">未找到相关文档</p>';
-                return;
-            }
-            
-            let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
-            results.forEach((doc, idx) => {
-                const timestamp = doc.created_at ? new Date(doc.created_at).toLocaleDateString('zh-CN') : '未知日期';
-                const score = doc.similarity ? (doc.similarity * 100).toFixed(0) : doc.score ? (doc.score * 100).toFixed(0) : '100';
                 
-                html += `
-                    <div style="background: white; padding: 18px; border-radius: 8px; border-left: 4px solid #667eea; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
-                            <div style="flex: 1;">
-                                <h4 style="margin: 0 0 8px 0; color: #333; font-size: 14px; font-weight: 600;">${doc.title || '无标题'}</h4>
-                                <p style="margin: 0 0 10px 0; color: #666; font-size: 13px; line-height: 1.6; max-height: 80px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
-                                    ${doc.content || '暂无内容'}
-                                </p>
-                                <div style="display: flex; gap: 15px; font-size: 12px; color: #999;">
-                                    ${doc.source ? `<span>📄 来源: ${doc.source}</span>` : ''}
-                                    ${doc.tags && doc.tags.length > 0 ? `<span>🏷️ ${doc.tags.join(', ')}</span>` : ''}
+                if (data.results?.length > 0) {
+                    let html = '';
+                    data.results.forEach(result => {
+                        html += `
+                            <div class="search-result">
+                                <div class="search-result-title">${result.title || result.doc_id || 'Document'}</div>
+                                <div class="search-result-content">${result.content?.substring(0, 200) || ''}...</div>
+                                <div class="search-result-meta">
+                                    <span class="tag">${result.category || 'General'}</span>
+                                    <span>Score: ${(result.score * 100).toFixed(0)}%</span>
                                 </div>
                             </div>
-                            <div style="text-align: right; font-size: 12px; color: #999; white-space: nowrap; min-width: 100px;">
-                                <div style="color: #667eea; font-weight: 600; margin-bottom: 4px;">相似度: ${score}%</div>
-                                <div>${timestamp}</div>
-                            </div>
+                        `;
+                    });
+                    resultsContainer.innerHTML = html;
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <p>No documents found for "${query}"</p>
                         </div>
+                    `;
+                }
+            } catch (error) {
+                resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <p>Search failed. Please try again.</p>
                     </div>
                 `;
-            });
-            html += '</div>';
-            
-            container.innerHTML = html;
-            addDebugLog('✅ 已显示' + results.length + '条知识库结果');
+            }
         }
-        
-        // ==================== 大模型管理功能 ====================
+
+        async function searchIntegrationKnowledge() {
+            const query = document.getElementById('integrationSearchInput').value.trim();
+            if (!query) return;
+
+            const resultsContainer = document.getElementById('integrationResults');
+            resultsContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-muted);">Searching...</div>';
+
+            try {
+                const response = await fetch(`/api/integration/search?query=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.results?.length > 0) {
+                    let html = '';
+                    data.results.forEach(result => {
+                        html += `
+                            <div class="search-result">
+                                <div class="search-result-title">${result.title || 'Result'}</div>
+                                <div class="search-result-content">${result.content?.substring(0, 200) || ''}...</div>
+                                <div class="search-result-meta">
+                                    <span class="tag">${result.source || 'Enterprise'}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    resultsContainer.innerHTML = html;
+                } else {
+                    resultsContainer.innerHTML = `<div class="empty-state"><p>No results found</p></div>`;
+                }
+            } catch (error) {
+                resultsContainer.innerHTML = `<div class="empty-state"><p>Search failed</p></div>`;
+            }
+        }
+
+        function searchIntegrationByCategory(category) {
+            document.getElementById('integrationSearchInput').value = category;
+            searchIntegrationKnowledge();
+        }
+
+        // ==================== LLM Models ====================
         
         async function loadLLMModels() {
             const container = document.getElementById('llmContainer');
-            container.innerHTML = '<p style="color: #999; text-align: center; padding: 30px;">加载中...</p>';
             
             try {
-                const response = await fetch('/api/llm/models/list');
+                const response = await fetch('/api/llm/models');
                 const data = await response.json();
+                const models = data.models || [];
                 
-                if (data.status === 'success' && data.models && data.models.length > 0) {
-                    displayLLMModels(data.models);
-                    addDebugLog('✅ 加载了' + data.models.length + '个大模型');
-                } else {
-                    container.innerHTML = '<p style="color: #999; text-align: center; padding: 30px;">暂无大模型配置</p>';
-                    addDebugLog('⚠️ 未找到大模型配置');
+                if (models.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"></path></svg>
+                            <p>${t('common.noData')}</p>
+                        </div>
+                    `;
+                    return;
                 }
+
+                let html = '';
+                models.forEach(model => {
+                    html += `
+                        <div class="model-card">
+                            <div class="model-header">
+                                <div class="model-name">${model.name}</div>
+                                <div class="model-badges">
+                                    ${model.is_default ? `<span class="model-badge default">${t('llm.default')}</span>` : ''}
+                                    ${model.enabled ? `<span class="model-badge enabled">${t('llm.enabled')}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="model-details">
+                                <div class="model-detail">
+                                    <div class="model-detail-label">${t('llm.provider')}</div>
+                                    <div class="model-detail-value">${model.provider}</div>
+                                </div>
+                                <div class="model-detail">
+                                    <div class="model-detail-label">${t('llm.maxTokens')}</div>
+                                    <div class="model-detail-value">${model.max_tokens}</div>
+                                </div>
+                                <div class="model-detail">
+                                    <div class="model-detail-label">${t('llm.temperature')}</div>
+                                    <div class="model-detail-value">${model.temperature}</div>
+                                </div>
+                                <div class="model-detail">
+                                    <div class="model-detail-label">Type</div>
+                                    <div class="model-detail-value">${model.model_type || 'API'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
             } catch (error) {
-                console.error('加载大模型列表失败:', error);
-                container.innerHTML = '<p style="color: #f44336; text-align: center; padding: 30px;">加载失败: ' + error.message + '</p>';
-                addDebugLog('❌ 加载大模型失败: ' + error.message);
-            }
-        }
-        
-        function displayLLMModels(models) {
-            const container = document.getElementById('llmContainer');
-            
-            if (!models || models.length === 0) {
-                container.innerHTML = '<p style="color: #999; text-align: center; padding: 30px;">暂无大模型配置</p>';
-                return;
-            }
-            
-            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 20px;">';
-            
-            models.forEach(model => {
-                const providers = {
-                    'openai': '🟢 OpenAI',
-                    'chatgpt': '🟢 ChatGPT',
-                    'chatanywhere': '🔵 ChatAnywhere',
-                    'local': '📦 本地模型',
-                    'azure': '☁️ Azure',
-                    'claude': '🤖 Claude',
-                    'cohere': '🌊 Cohere',
-                    'llama': '🦙 Llama'
-                };
-                
-                const providerIcon = providers[model.provider.toLowerCase()] || ('🤖 ' + model.provider);
-                const isDefault = model.is_default ? '★ 默认' : '';
-                const enabled = model.enabled ? '✅ 启用' : '⊘ 禁用';
-                
-                const typeLabel = model.model_type === 'api' ? 'API 接口' : '本地模型';
-                const statusBg = model.enabled ? '#e8f5e9' : '#ffebee';
-                const statusColor = model.enabled ? '#2e7d32' : '#c62828';
-                
-                html += `
-                    <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s;"
-                         onmouseover="this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.15)'; this.style.transform='translateY(-2px)'"
-                         onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'; this.style.transform='translateY(0)'">
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
-                            <div style="font-size: 24px;">${providerIcon}</div>
-                            <div style="text-align: right;">
-                                ${isDefault ? `<span style="display: inline-block; background: #ffc107; color: #333; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 4px;">${isDefault}</span>` : ''}
-                                <span style="display: inline-block; background: ${statusBg}; color: ${statusColor}; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${enabled}</span>
-                            </div>
-                        </div>
-                        
-                        <h3 style="margin: 0 0 6px 0; color: #333; font-size: 16px; font-weight: 600;">${model.name}</h3>
-                        <p style="margin: 0 0 12px 0; color: #999; font-size: 12px;">${typeLabel}</p>
-                        
-                        ${model.description ? `<p style="margin: 0 0 12px 0; color: #666; font-size: 12px; line-height: 1.5;">${model.description}</p>` : ''}
-                        
-                        <div style="background: #f5f5f5; padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; color: #555;">
-                            <div><strong>提供商:</strong> ${model.provider}</div>
-                            ${model.endpoint ? `<div><strong>端点:</strong> ${model.endpoint.substring(0, 40)}...</div>` : ''}
-                            <div><strong>最大Token:</strong> ${model.max_tokens || 'N/A'}</div>
-                            <div><strong>温度:</strong> ${model.temperature || 'N/A'}</div>
-                            ${model.base_url ? `<div><strong>Base URL:</strong> ${model.base_url.substring(0, 40)}...</div>` : ''}
-                        </div>
-                        
-                        <div style="padding-top: 12px; border-top: 1px solid #f0f0f0; font-size: 11px; color: #999;">
-                            <div>🕐 创建于: ${model.created_at ? new Date(model.created_at).toLocaleDateString('zh-CN') : 'N/A'}</div>
-                            <div>✏️ 更新于: ${model.updated_at ? new Date(model.updated_at).toLocaleDateString('zh-CN') : 'N/A'}</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #f0f0f0;">
-                                <span style="display: inline-block; background: #667eea; color: white; padding: 4px 12px; border-radius: 4px; margin-right: 4px;">🔒 只读</span>
-                                <span style="color: #999; font-size: 10px;">配置在数据库中，不可修改</span>
-                            </div>
-                        </div>
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>Failed to load models</p>
                     </div>
                 `;
-            });
-            
-            html += '</div>';
-            container.innerHTML = html;
-        }
-        
-        // 页面加载时初始化数据
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function() {
-                const pageId = this.dataset.page;
-                if (pageId === 'rag') {
-                    // 知识库页面：加载所有文档
-                    loadRagDocuments();
-                } else if (pageId === 'llm') {
-                    // 大模型页面：加载模型列表
-                    loadLLMModels();
-                }
-            });
-        });
-        
-        // 初始化RAG文档（显示所有）
-        async function loadRagDocuments() {
-            const resultsContainer = document.getElementById('ragResults');
-            if (!resultsContainer) return;
-            
-            resultsContainer.innerHTML = '<p style="color: #999; text-align: center;">加载中...</p>';
-            
-            try {
-                const response = await fetch('/api/rag/documents');
-                const data = await response.json();
-                displayRagResults(data.documents || []);
-                addDebugLog('✅ 已加载' + (data.documents ? data.documents.length : 0) + '个知识库文档');
-            } catch (error) {
-                console.error('加载知识库文档失败:', error);
-                resultsContainer.innerHTML = '<p style="color: #f44336; text-align: center;">加载失败: ' + error.message + '</p>';
-                addDebugLog('❌ 加载知识库失败: ' + error.message);
             }
         }
+
+        // ==================== Event Listeners ====================
         
-        // 回车搜索知识库
-        document.getElementById('ragSearchInput')?.addEventListener('keypress', (e) => {
+        document.getElementById('questionInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') askQuestion();
+        });
+
+        document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchKnowledge();
+        });
+
+        document.getElementById('ragSearchInput')?.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') searchRagDocuments();
         });
 
-        // 立即执行或延迟执行
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(initializeData, 50);
-            });
-        } else {
-            setTimeout(initializeData, 50);
+        document.getElementById('integrationSearchInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchIntegrationKnowledge();
+        });
+
+        // ==================== Initialize ====================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            hideLoadingMask();
+            updatePageLanguage();
+            loadInitialData();
+        });
+
+        if (document.readyState !== 'loading') {
+            hideLoadingMask();
+            updatePageLanguage();
+            loadInitialData();
         }
     </script>
 </body>
