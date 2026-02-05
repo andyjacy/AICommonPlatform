@@ -88,14 +88,29 @@ def insert_document(doc: Document):
         conn.close()
 
 def search_documents(query_text: str, top_k: int = 5, category: Optional[str] = None) -> List[Document]:
-    """从向量数据库搜索文档 - 支持中文分词、字符匹配和部分匹配"""
+    """从向量数据库搜索文档 - 使用词组匹配和语义相关性"""
     import sys
     print(f"🔍 [search_documents] 搜索开始: '{query_text}'", file=sys.stderr, flush=True)
     
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    query_chars = list(query_text)  # 拆成单个字符
+    # 中文分词（简单实现：按2-3字词组切分）
+    def extract_keywords(text):
+        """提取关键词（至少2个字的词组）"""
+        keywords = set()
+        # 1. 完整查询作为关键词
+        keywords.add(text.strip())
+        # 2. 按2字词组切分
+        for i in range(len(text) - 1):
+            keywords.add(text[i:i+2])
+        # 3. 按3字词组切分
+        for i in range(len(text) - 2):
+            keywords.add(text[i:i+3])
+        return keywords
+    
+    query_keywords = extract_keywords(query_text)
+    print(f"📝 [search_documents] 提取关键词: {query_keywords}", file=sys.stderr, flush=True)
     
     try:
         if category:
@@ -110,35 +125,46 @@ def search_documents(query_text: str, top_k: int = 5, category: Optional[str] = 
         
         print(f"📚 [search_documents] 数据库中找到 {len(rows)} 个文档", file=sys.stderr, flush=True)
         
-        # 在Python中计算相关性分数
+        # 计算相关性分数
         scored_results = []
+        MIN_SCORE_THRESHOLD = 30  # 最低分数阈值，过滤不相关结果
         
         for row in rows:
             title = row[1]
             content = row[2]
+            tags_str = row[4] if row[4] else ""
+            full_text = f"{title} {content} {tags_str}".lower()
             
             score = 0
-            matched_chars_list = []  # 记录匹配的字符
+            matched_keywords = []
             
             # 1. 完全匹配查询文本（最高优先级）
             if query_text in title:
-                score += 100
+                score += 200
+                matched_keywords.append(f"标题完全匹配: {query_text}")
             if query_text in content:
-                score += 50
+                score += 100
+                matched_keywords.append(f"内容完全匹配: {query_text}")
+            if query_text in tags_str:
+                score += 80
+                matched_keywords.append(f"标签完全匹配: {query_text}")
             
-            # 2. 字符匹配：检查查询中的每个字符
-            for char in query_chars:
-                if char in title:
-                    score += 20
-                    matched_chars_list.append(char)
-                if char in content and char not in matched_chars_list:
-                    score += 8
-                    if char not in matched_chars_list:
-                        matched_chars_list.append(char)
+            # 2. 词组匹配（至少2字的词组才计分）
+            for keyword in query_keywords:
+                if len(keyword) >= 2:  # 只匹配2字以上的词组
+                    if keyword in title:
+                        score += 50
+                        matched_keywords.append(f"标题包含: {keyword}")
+                    elif keyword in content:
+                        score += 20
+                        matched_keywords.append(f"内容包含: {keyword}")
+                    elif keyword in tags_str:
+                        score += 30
+                        matched_keywords.append(f"标签包含: {keyword}")
             
-            # 只返回有匹配的文档
-            if score > 0:
-                print(f"   ✅ '{title}': 分数={score}", file=sys.stderr, flush=True)
+            # 只返回分数达到阈值的文档
+            if score >= MIN_SCORE_THRESHOLD:
+                print(f"   ✅ '{title}': 分数={score}, 匹配: {matched_keywords[:3]}", file=sys.stderr, flush=True)
                 scored_results.append({
                     'doc': Document(
                         id=row[0],
@@ -149,8 +175,12 @@ def search_documents(query_text: str, top_k: int = 5, category: Optional[str] = 
                         source=row[5],
                         created_at=row[6]
                     ),
-                    'score': score
+                    'score': score,
+                    'matched_keywords': matched_keywords
                 })
+            else:
+                if score > 0:
+                    print(f"   ⚠️ '{title}': 分数={score} (低于阈值{MIN_SCORE_THRESHOLD}，跳过)", file=sys.stderr, flush=True)
         
         # 按相关性分数排序
         scored_results.sort(key=lambda x: x['score'], reverse=True)
@@ -158,7 +188,7 @@ def search_documents(query_text: str, top_k: int = 5, category: Optional[str] = 
         # 提取排序后的文档
         results = [item['doc'] for item in scored_results[:top_k]]
         
-        print(f"✅ [search_documents] 返回 {len(results)} 个结果", file=sys.stderr, flush=True)
+        print(f"✅ [search_documents] 返回 {len(results)} 个相关结果", file=sys.stderr, flush=True)
         
         conn.close()
         return results

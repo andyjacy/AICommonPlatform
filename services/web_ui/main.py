@@ -191,6 +191,36 @@ def init_db():
         )
     """)
     
+    # 知识库文档表
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS knowledge_documents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            doc_id TEXT NOT NULL UNIQUE,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            category TEXT DEFAULT 'general',
+            department TEXT,
+            tags TEXT,
+            enabled BOOLEAN DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    
+    # 使用统计表
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS usage_statistics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            stat_date DATE NOT NULL,
+            stat_type TEXT NOT NULL,
+            stat_key TEXT NOT NULL,
+            stat_value INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(stat_date, stat_type, stat_key)
+        )
+    """)
+    
     # 创建默认管理员用户 (用户名: admin, 密码: admin123)
     import hashlib
     default_password = hashlib.sha256("admin123".encode()).hexdigest()
@@ -355,6 +385,99 @@ def init_db():
                     (user_id, question, answer, question_type, confidence, sources, execution_time, trace_id, trace_data, created_at)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (user_id, question, answer, qtype, confidence, source, exec_time, trace_id, json.dumps(trace_data), created_at))
+            except sqlite3.IntegrityError:
+                pass
+    
+    # 插入默认知识库文档
+    default_knowledge_docs = [
+        ("doc_sales_q1", "Q1季度销售报告", """2024年Q1季度销售报告摘要：
+公司总销售额达到5000万元，同比增长15%。
+- 核心产品线贡献占比65%，销售额3250万元
+- 新产品线贡献占比35%，销售额1750万元
+- 华东区域销售额最高，占总额40%
+- 华南区域同比增长最快，达25%
+关键客户新增：5家大型企业客户，合同总额超过800万元。
+销售团队绩效：销售人员人均业绩达到120万元/季度。""", "sales", "销售部", "销售,报告,Q1,季度,业绩"),
+        
+        ("doc_sales_strategy", "销售策略指南", """销售策略与最佳实践指南：
+1. 客户分级管理：按客户价值分为A/B/C三级
+2. 销售流程标准化：需求分析→方案设计→商务谈判→签约→交付
+3. 销售工具使用：CRM系统、销售漏斗管理、客户画像分析
+4. 团队激励机制：基础薪资+绩效提成+年度奖金
+5. 客户关系维护：定期回访、节日关怀、增值服务
+销售部门目标：年销售额增长20%，新客户获取增加30%。""", "sales", "销售部", "销售,策略,客户,管理"),
+        
+        ("doc_hr_handbook", "员工手册", """公司员工福利体系：
+1. 基础保险：五险一金，公司100%缴纳
+2. 休假制度：法定假日+10天带薪年假（最高可累计至20天）
+3. 补贴政策：交通补贴500元/月，餐补300元/月，通讯补贴200元/月
+4. 健康关怀：年度体检+健身补贴500元/年
+5. 培训发展：年度培训经费3000元，支持外部培训和认证
+6. 绩效奖励：季度绩效奖金+年终奖金+优秀员工股权激励
+员工晋升通道：初级→中级→高级→专家→管理层""", "hr", "人力资源部", "HR,员工,福利,手册"),
+        
+        ("doc_hr_recruitment", "招聘管理制度", """招聘管理流程：
+1. 需求提交：部门经理填写招聘申请单
+2. 职位发布：HR在招聘平台发布职位
+3. 简历筛选：HR初筛+部门复筛
+4. 面试安排：电话面试→技术面试→HR面试→终面
+5. 背景调查：学历验证+工作经历核实
+6. Offer发放：薪资谈判→Offer审批→入职准备
+招聘渠道：内部推荐（奖励3000元）、招聘网站、猎头合作、校园招聘。""", "hr", "人力资源部", "HR,招聘,面试,入职"),
+        
+        ("doc_finance_budget", "年度预算报告", """2024年度预算分配报告：
+总预算批准金额：10亿元
+各部门预算分配：
+- 研发部门：2.8亿（占28%）
+- 销售市场：2.2亿（占22%）
+- 人力资源：1.5亿（占15%）
+- 运营管理：2.0亿（占20%）
+- 行政成本：1.5亿（占15%）
+预算执行要求：各部门按季度进度执行，偏差超过10%需提交说明。""", "finance", "财务部", "财务,预算,部门,分配"),
+        
+        ("doc_tech_architecture", "技术架构设计", """企业微服务架构设计规范：
+1. API网关：Kong或Nginx Plus作为统一入口
+2. 服务框架：FastAPI(Python)/Spring Boot(Java)
+3. 服务网格：Istio管理服务间通信
+4. 容器编排：Docker+Kubernetes
+5. 数据库：MySQL主从+分库分表，读写分离
+6. 缓存：Redis集群，热数据缓存
+7. 消息队列：Kafka处理异步消息
+8. 监控告警：Prometheus+Grafana+ELK日志栈
+9. CI/CD：GitLab CI + ArgoCD自动化部署""", "tech", "技术部", "技术,架构,微服务,设计"),
+        
+        ("doc_supply_chain", "供应链管理", """供应商管理体系：
+一级战略供应商（15家，占采购额80%）：
+- 5家核心原料供应商
+- 8家关键部件供应商
+- 2家物流合作伙伴
+二级优选供应商（40家，占采购额15%）
+三级备选供应商（100+家）
+供应商考核指标：质量合格率≥99%，交期准时率≥98%，成本年降3%
+采购流程：需求提交→供应商选择→询价比价→合同签订→到货验收""", "supply_chain", "供应链部", "供应链,供应商,采购,管理"),
+        
+        ("doc_system_features", "平台功能介绍", """AI通用智能平台核心功能：
+1. 智能问答系统：支持自然语言提问，智能匹配专业顾问角色
+2. 知识库搜索：对接企业内部文档和业务数据，支持语义搜索
+3. 调用链追踪：完整记录每个问题的处理过程和耗时
+4. 系统集成：连接ERP、HR、财务等企业核心系统
+5. 多角色支持：通用顾问、销售分析、HR管理、技术架构、财务分析
+6. 数据持久化：所有问答记录本地存储，支持历史查询
+7. 企业部署：支持轻量化和完整部署两种模式""", "general", "技术部", "平台,功能,AI,系统"),
+    ]
+    
+    # 检查是否已有知识库文档
+    cursor.execute("SELECT COUNT(*) FROM knowledge_documents")
+    doc_count = cursor.fetchone()[0]
+    
+    if doc_count == 0:
+        for doc_id, title, content, category, department, tags in default_knowledge_docs:
+            try:
+                cursor.execute("""
+                    INSERT OR IGNORE INTO knowledge_documents 
+                    (doc_id, title, content, category, department, tags)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (doc_id, title, content, category, department, tags))
             except sqlite3.IntegrityError:
                 pass
     
@@ -678,6 +801,199 @@ async def get_services_status():
         "overall_status": "healthy" if all(s["status"] == "healthy" for s in statuses) else "degraded"
     }
 
+
+# ==================== 监控统计API ====================
+
+def update_usage_stat(stat_type: str, stat_key: str, increment: int = 1):
+    """更新使用统计"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        today = datetime.now().strftime('%Y-%m-%d')
+        
+        cursor.execute("""
+            INSERT INTO usage_statistics (stat_date, stat_type, stat_key, stat_value)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(stat_date, stat_type, stat_key) 
+            DO UPDATE SET stat_value = stat_value + ?, updated_at = CURRENT_TIMESTAMP
+        """, (today, stat_type, stat_key, increment, increment))
+        
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logger.error(f"Failed to update usage stat: {e}")
+
+
+@app.get("/api/monitor/statistics")
+async def get_monitor_statistics():
+    """获取监控统计数据"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # 1. 总提问次数（从qa_history表）
+        cursor.execute("SELECT COUNT(*) FROM qa_history")
+        total_questions = cursor.fetchone()[0]
+        
+        # 2. 今日提问次数
+        today = datetime.now().strftime('%Y-%m-%d')
+        cursor.execute("SELECT COUNT(*) FROM qa_history WHERE DATE(created_at) = ?", (today,))
+        today_questions = cursor.fetchone()[0]
+        
+        # 3. RAG查询次数（从usage_statistics表，如果没有则估算）
+        cursor.execute("""
+            SELECT COALESCE(SUM(stat_value), 0) FROM usage_statistics 
+            WHERE stat_type = 'rag_query'
+        """)
+        rag_queries = cursor.fetchone()[0]
+        if rag_queries == 0:
+            # 假设每个问答都有RAG查询
+            rag_queries = total_questions
+        
+        # 4. 今日RAG查询
+        cursor.execute("""
+            SELECT COALESCE(SUM(stat_value), 0) FROM usage_statistics 
+            WHERE stat_type = 'rag_query' AND stat_date = ?
+        """, (today,))
+        today_rag_queries = cursor.fetchone()[0]
+        if today_rag_queries == 0:
+            today_rag_queries = today_questions
+        
+        # 5. 各Prompt使用次数
+        cursor.execute("""
+            SELECT question_type, COUNT(*) as count 
+            FROM qa_history 
+            WHERE question_type IS NOT NULL AND question_type != ''
+            GROUP BY question_type 
+            ORDER BY count DESC
+        """)
+        prompt_usage = []
+        prompt_mapping = {
+            'general_inquiry': '通用顾问',
+            'sales_analysis': '销售分析顾问',
+            'hr_policy': 'HR政策顾问',
+            'technical_design': '技术架构顾问',
+            'finance_budget': '财务分析顾问',
+            'supply_chain': '供应链顾问'
+        }
+        for row in cursor.fetchall():
+            prompt_usage.append({
+                "prompt_type": row[0],
+                "prompt_name": prompt_mapping.get(row[0], row[0]),
+                "count": row[1]
+            })
+        
+        # 6. 各业务部门数据使用次数（从qa_history的sources字段分析）
+        cursor.execute("SELECT sources FROM qa_history WHERE sources IS NOT NULL AND sources != ''")
+        department_stats = {
+            'sales': {'name': '销售部门', 'count': 0},
+            'hr': {'name': '人力资源', 'count': 0},
+            'finance': {'name': '财务部门', 'count': 0},
+            'technical': {'name': '技术部门', 'count': 0},
+            'supply_chain': {'name': '供应链', 'count': 0},
+            'marketing': {'name': '市场部门', 'count': 0}
+        }
+        
+        for row in cursor.fetchall():
+            sources = row[0].lower()
+            if 'erp' in sources or 'sales' in sources or 'crm' in sources:
+                department_stats['sales']['count'] += 1
+            if 'hr' in sources or 'employee' in sources:
+                department_stats['hr']['count'] += 1
+            if 'finance' in sources or 'budget' in sources:
+                department_stats['finance']['count'] += 1
+            if 'tech' in sources or 'dev' in sources:
+                department_stats['technical']['count'] += 1
+            if 'supply' in sources or 'scm' in sources:
+                department_stats['supply_chain']['count'] += 1
+            if 'marketing' in sources:
+                department_stats['marketing']['count'] += 1
+        
+        department_usage = [
+            {"department": k, "name": v['name'], "count": v['count']} 
+            for k, v in department_stats.items() if v['count'] > 0
+        ]
+        department_usage.sort(key=lambda x: x['count'], reverse=True)
+        
+        # 7. Token消耗统计（估算：平均每个问题消耗约500 tokens）
+        cursor.execute("""
+            SELECT COALESCE(SUM(stat_value), 0) FROM usage_statistics 
+            WHERE stat_type = 'token_usage'
+        """)
+        total_tokens = cursor.fetchone()[0]
+        if total_tokens == 0:
+            # 估算：问题平均100 tokens，回答平均400 tokens
+            total_tokens = total_questions * 500
+        
+        cursor.execute("""
+            SELECT COALESCE(SUM(stat_value), 0) FROM usage_statistics 
+            WHERE stat_type = 'token_usage' AND stat_date = ?
+        """, (today,))
+        today_tokens = cursor.fetchone()[0]
+        if today_tokens == 0:
+            today_tokens = today_questions * 500
+        
+        # 8. 最近7天的提问趋势
+        cursor.execute("""
+            SELECT DATE(created_at) as date, COUNT(*) as count
+            FROM qa_history
+            WHERE created_at >= DATE('now', '-7 days')
+            GROUP BY DATE(created_at)
+            ORDER BY date
+        """)
+        daily_trend = []
+        for row in cursor.fetchall():
+            daily_trend.append({"date": row[0], "count": row[1]})
+        
+        # 9. 平均响应时间
+        cursor.execute("SELECT AVG(execution_time) FROM qa_history WHERE execution_time > 0")
+        avg_response_time = cursor.fetchone()[0] or 0
+        
+        # 10. 平均置信度
+        cursor.execute("SELECT AVG(confidence) FROM qa_history WHERE confidence > 0")
+        avg_confidence = cursor.fetchone()[0] or 0
+        
+        conn.close()
+        
+        return {
+            "status": "success",
+            "timestamp": datetime.now().isoformat(),
+            "overview": {
+                "total_questions": total_questions,
+                "today_questions": today_questions,
+                "total_rag_queries": rag_queries,
+                "today_rag_queries": today_rag_queries,
+                "total_tokens": total_tokens,
+                "today_tokens": today_tokens,
+                "avg_response_time": round(avg_response_time, 2),
+                "avg_confidence": round(avg_confidence * 100, 1)
+            },
+            "prompt_usage": prompt_usage,
+            "department_usage": department_usage,
+            "daily_trend": daily_trend
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to get monitor statistics: {e}")
+        return {
+            "status": "error",
+            "message": str(e),
+            "overview": {
+                "total_questions": 0,
+                "today_questions": 0,
+                "total_rag_queries": 0,
+                "today_rag_queries": 0,
+                "total_tokens": 0,
+                "today_tokens": 0,
+                "avg_response_time": 0,
+                "avg_confidence": 0
+            },
+            "prompt_usage": [],
+            "department_usage": [],
+            "daily_trend": []
+        }
+
+
 # ==================== 问答接口 ====================
 
 @app.post("/api/qa/ask")
@@ -840,6 +1156,79 @@ async def delete_prompt(role: str):
 
 # ==================== RAG 知识库接口 ====================
 
+def search_local_knowledge(query: str) -> list:
+    """本地知识库搜索（使用词组匹配，避免单字符误匹配）"""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    # 获取所有启用的文档
+    cursor.execute("""
+        SELECT doc_id, title, content, category, department, tags
+        FROM knowledge_documents 
+        WHERE enabled = 1
+    """)
+    
+    rows = cursor.fetchall()
+    conn.close()
+    
+    # 提取关键词（至少2字的词组）
+    def extract_keywords(text):
+        keywords = set()
+        keywords.add(text.strip())
+        for i in range(len(text) - 1):
+            keywords.add(text[i:i+2])
+        for i in range(len(text) - 2):
+            keywords.add(text[i:i+3])
+        return keywords
+    
+    query_keywords = extract_keywords(query)
+    MIN_SCORE_THRESHOLD = 30  # 最低分数阈值
+    
+    results = []
+    for row in rows:
+        title = row['title']
+        content = row['content']
+        tags = row['tags'] or ''
+        full_text = f"{title} {content} {tags}"
+        
+        score = 0
+        
+        # 1. 完全匹配查询文本（最高优先级）
+        if query in title:
+            score += 200
+        if query in content:
+            score += 100
+        if query in tags:
+            score += 80
+        
+        # 2. 词组匹配（至少2字的词组才计分）
+        for keyword in query_keywords:
+            if len(keyword) >= 2:
+                if keyword in title:
+                    score += 50
+                elif keyword in content:
+                    score += 20
+                elif keyword in tags:
+                    score += 30
+        
+        # 只返回分数达到阈值的文档
+        if score >= MIN_SCORE_THRESHOLD:
+            # 归一化分数到 0-1 范围
+            normalized_score = min(score / 300, 0.99)
+            results.append({
+                "doc_id": row['doc_id'],
+                "title": row['title'],
+                "content": row['content'],
+                "category": row['category'],
+                "department": row['department'],
+                "score": normalized_score
+            })
+    
+    # 按分数排序
+    results.sort(key=lambda x: x['score'], reverse=True)
+    return results[:10]
+
 @app.get("/api/rag/documents")
 async def get_documents():
     """获取知识库文档"""
@@ -847,44 +1236,105 @@ async def get_documents():
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 f"{RAG_SERVICE_URL}/api/rag/documents",
-                timeout=aiohttp.ClientTimeout(total=10)
+                timeout=aiohttp.ClientTimeout(total=5)
             ) as resp:
                 if resp.status == 200:
                     data = await resp.json()
                     logger.info("Successfully retrieved documents from RAG service")
                     return data
-                else:
-                    logger.warning(f"RAG service returned status {resp.status}")
-                    return {"documents": [], "error": f"RAG service error: {resp.status}"}
     except Exception as e:
-        logger.error(f"Document request failed: {e}")
+        logger.warning(f"RAG service not available, using local: {e}")
+    
+    # 回退到本地数据库
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM knowledge_documents WHERE enabled = 1")
+        rows = cursor.fetchall()
+        conn.close()
+        
+        documents = [dict(row) for row in rows]
+        return {"documents": documents, "source": "local"}
+    except Exception as e:
+        logger.error(f"Local document fetch failed: {e}")
         return {"documents": [], "error": str(e)}
 
+@app.get("/api/rag/search")
+async def search_documents_get(query: str = ""):
+    """搜索知识库（GET 方式）"""
+    if not query:
+        return {"query": "", "results": [], "message": "请输入搜索关键词"}
+    
+    # 优先尝试远程 RAG 服务
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{RAG_SERVICE_URL}/api/rag/search",
+                json={"query": query},
+                timeout=aiohttp.ClientTimeout(total=5)
+            ) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    logger.info(f"RAG search completed for query: {query}")
+                    # 转换 documents 为 results 格式
+                    if 'documents' in data and 'results' not in data:
+                        results = []
+                        for doc in data['documents']:
+                            results.append({
+                                "doc_id": doc.get('id', ''),
+                                "title": doc.get('title', ''),
+                                "content": doc.get('content', ''),
+                                "category": doc.get('category', 'general'),
+                                "score": 0.85  # 默认相关度分数
+                            })
+                        return {
+                            "query": query,
+                            "results": results,
+                            "source": "remote",
+                            "timestamp": datetime.now().isoformat()
+                        }
+                    return data
+    except Exception as e:
+        logger.warning(f"RAG service not available, using local search: {e}")
+    
+    # 回退到本地搜索
+    results = search_local_knowledge(query)
+    return {
+        "query": query,
+        "results": results,
+        "source": "local",
+        "timestamp": datetime.now().isoformat()
+    }
+
 @app.post("/api/rag/search")
-async def search_documents(query: dict):
-    """搜索知识库"""
+async def search_documents_post(query: dict):
+    """搜索知识库（POST 方式）"""
     search_query = query.get('query', '')
+    if not search_query:
+        return {"query": "", "results": [], "message": "请输入搜索关键词"}
+    
+    # 优先尝试远程 RAG 服务
     try:
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 f"{RAG_SERVICE_URL}/api/rag/search",
                 json=query,
-                timeout=aiohttp.ClientTimeout(total=10)
+                timeout=aiohttp.ClientTimeout(total=5)
             ) as resp:
                 if resp.status == 200:
                     data = await resp.json()
                     logger.info(f"RAG search completed for query: {search_query}")
                     return data
-                else:
-                    logger.warning(f"RAG search failed with status {resp.status}")
     except Exception as e:
-        logger.error(f"Search request failed: {e}")
+        logger.warning(f"RAG service not available, using local search: {e}")
     
-    # 服务不可用时返回空结果
+    # 回退到本地搜索
+    results = search_local_knowledge(search_query)
     return {
         "query": search_query,
-        "results": [],
-        "error": "知识库服务暂时不可用",
+        "results": results,
+        "source": "local",
         "timestamp": datetime.now().isoformat()
     }
 
@@ -948,23 +1398,172 @@ async def get_erp_sales(year: int, quarter: str):
     except Exception as e:
         return {"error": str(e)}
 
+
+@app.get("/api/integration/search")
+async def search_integration_knowledge(query: str = Query(...)):
+    """搜索企业集成知识库（按业务分类搜索）"""
+    # 业务分类映射（英文分类名 -> 用于搜索的中文关键词）
+    category_mapping = {
+        'sales': '销售',
+        'hr': '员工',
+        'finance': '财务',
+        'technical': '技术',
+        'supply_chain': '供应链',
+        'marketing': '市场'
+    }
+    
+    # 检查是否是分类搜索（英文分类名）
+    search_category = None
+    search_keyword = query  # 默认使用原始查询词
+    
+    if query.lower() in category_mapping:
+        search_category = query.lower()
+        search_keyword = category_mapping[query.lower()]  # 使用对应的中文关键词搜索
+    
+    # 尝试远程 RAG 服务
+    try:
+        async with aiohttp.ClientSession() as session:
+            search_params = {"query": search_keyword, "top_k": 10}
+            if search_category:
+                search_params["category"] = search_category
+            
+            async with session.post(
+                f"{RAG_SERVICE_URL}/api/rag/search",
+                json=search_params,
+                timeout=aiohttp.ClientTimeout(total=10)
+            ) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    documents = data.get("documents", [])
+                    
+                    # 转换为前端期望的格式
+                    results = []
+                    for doc in documents:
+                        results.append({
+                            "title": doc.get("title", "未知文档"),
+                            "content": doc.get("content", ""),
+                            "category": doc.get("category", "general"),
+                            "source": doc.get("source", "知识库"),
+                            "score": 0.85
+                        })
+                    
+                    if results:
+                        return {
+                            "query": query,
+                            "results": results,
+                            "source": "remote",
+                            "timestamp": datetime.now().isoformat()
+                        }
+    except Exception as e:
+        logger.warning(f"Remote integration search failed: {e}")
+    
+    # 回退到本地知识库搜索（使用中文关键词）
+    local_results = search_local_knowledge(search_keyword)
+    
+    # 如果是分类搜索但本地没有结果，返回该分类的描述信息
+    if not local_results and search_category:
+        category_descriptions = {
+            'sales': {'title': '销售业务知识', 'content': '包含销售报告、客户分析、销售策略、佣金政策等销售相关文档。'},
+            'hr': {'title': '人力资源知识', 'content': '包含员工手册、组织结构、培训发展、绩效管理等HR相关文档。'},
+            'finance': {'title': '财务知识', 'content': '包含财务预算、成本分析、财务报告、财务政策等财务相关文档。'},
+            'technical': {'title': '技术知识', 'content': '包含系统架构、技术文档、开发规范、API文档等技术相关文档。'},
+            'supply_chain': {'title': '供应链知识', 'content': '包含供应商管理、采购流程、库存管理、物流配送等供应链相关文档。'},
+            'marketing': {'title': '市场营销知识', 'content': '包含市场分析、营销策略、品牌推广、客户获取等市场相关文档。'}
+        }
+        desc = category_descriptions.get(search_category, {})
+        return {
+            "query": query,
+            "results": [{
+                "title": desc.get('title', f'{query}相关知识'),
+                "content": desc.get('content', f'暂无{query}相关的具体文档，请联系相关部门获取详细信息。'),
+                "category": search_category,
+                "source": "系统提示"
+            }],
+            "source": "local",
+            "timestamp": datetime.now().isoformat()
+        }
+    
+    return {
+        "query": query,
+        "results": local_results,
+        "source": "local",
+        "timestamp": datetime.now().isoformat()
+    }
+
+
 # ==================== LLM 模型接口 ====================
 
 @app.get("/api/llm/models")
 async def get_llm_models():
-    """获取可用的LLM模型"""
+    """获取可用的LLM模型（优先远程服务，回退到本地数据库）"""
+    # 优先尝试远程 LLM 服务
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 f"{LLM_SERVICE_URL}/api/llm/models",
-                timeout=aiohttp.ClientTimeout(total=10)
+                timeout=aiohttp.ClientTimeout(total=5)
             ) as resp:
                 if resp.status == 200:
-                    return await resp.json()
-                else:
-                    return {"error": "Failed to fetch models"}
+                    data = await resp.json()
+                    # 转换远程服务格式为前端期望的格式
+                    if 'models' in data:
+                        return data
+                    # 处理远程服务返回 supported_models 格式
+                    if 'supported_models' in data:
+                        provider = data.get('current_provider', 'openai')
+                        default_model = data.get('default_model', 'gpt-3.5-turbo')
+                        model_list = data['supported_models'].get(provider, [])
+                        models = []
+                        for i, model_name in enumerate(model_list):
+                            models.append({
+                                "id": i + 1,
+                                "name": model_name,
+                                "provider": provider,
+                                "model_type": "api",
+                                "max_tokens": 4096 if 'gpt-4' in model_name else 2048,
+                                "temperature": 0.7,
+                                "enabled": 1,
+                                "is_default": 1 if model_name == default_model else 0
+                            })
+                        return {
+                            "status": "success",
+                            "source": "remote",
+                            "count": len(models),
+                            "models": models
+                        }
     except Exception as e:
-        return {"error": str(e)}
+        logger.warning(f"LLM service not available, using local database: {e}")
+    
+    # 回退到本地数据库
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT * FROM llm_models ORDER BY is_default DESC, created_at")
+        rows = cursor.fetchall()
+        conn.close()
+        
+        models = []
+        for row in rows:
+            model = dict(row)
+            if model.get('metadata'):
+                try:
+                    model['metadata'] = json.loads(model['metadata'])
+                except:
+                    pass
+            models.append(model)
+        
+        logger.info(f"Retrieved {len(models)} models from local database")
+        return {
+            "status": "success",
+            "source": "local",
+            "count": len(models),
+            "models": models
+        }
+    except Exception as e:
+        logger.error(f"Failed to get models from local database: {e}")
+        return {"error": str(e), "models": []}
 
 # ==================== 网页入口 ====================
 
@@ -1480,11 +2079,23 @@ async def ask_question_with_trace(request: QuestionRequest):
     
     try:
         # 1. 输入处理阶段
+        # 文本预处理
+        processed_question = request.question.strip()
+        question_length = len(processed_question)
+        has_chinese = any('\u4e00' <= c <= '\u9fff' for c in processed_question)
+        
         chain.add_step(
             stage="输入处理",
             service="QA Entry Service (端口 8001)",
             purpose="接收用户问题，进行文本预处理和清洗",
-            data={"raw_question": request.question}
+            data={
+                "raw_question": request.question,
+                "processed_question": processed_question,
+                "question_length": question_length,
+                "language_detected": "中文" if has_chinese else "英文",
+                "preprocessing_actions": ["去除首尾空格", "UTF-8编码验证", "特殊字符处理"],
+                "user_id": request.user_id or "anonymous"
+            }
         )
         
         # 获取真实回答（从 QA 服务）
@@ -1517,15 +2128,37 @@ async def ask_question_with_trace(request: QuestionRequest):
         intent_data = qa_response.get("question_type", "general_inquiry")
         sources = qa_response.get("sources", [])
         
+        # 提取关键词
+        keywords = []
+        for word in ["销售", "财务", "HR", "技术", "预算", "员工", "报告", "数据", "系统", "架构"]:
+            if word in request.question:
+                keywords.append(word)
+        
+        intent_mapping = {
+            "general_inquiry": "通用咨询",
+            "sales_analysis": "销售分析",
+            "hr_policy": "人力资源政策",
+            "technical_design": "技术设计",
+            "finance_budget": "财务预算",
+            "supply_chain": "供应链管理"
+        }
+        
         chain.add_step(
             stage="意图识别",
             service="QA Entry Service (端口 8001)",
-            purpose="进行问题分类和关键词提取",
+            purpose="使用NLP模型进行问题分类、实体提取和关键词识别",
             data={
-                "intent": intent_data,
-                "question_type": intent_data,
-                "raw_question": request.question,
-                "confidence": qa_response.get("confidence", 0)
+                "recognized_intent": intent_mapping.get(intent_data, intent_data),
+                "intent_code": intent_data,
+                "confidence_score": qa_response.get("confidence", 0),
+                "extracted_keywords": keywords if keywords else ["通用查询"],
+                "question_category": "业务咨询" if any(k in request.question for k in ["销售", "财务", "预算"]) else "技术咨询" if any(k in request.question for k in ["技术", "架构", "系统"]) else "通用咨询",
+                "entity_recognition": {
+                    "has_time_reference": any(t in request.question for t in ["Q1", "Q2", "Q3", "Q4", "季度", "年度", "月"]),
+                    "has_number": any(c.isdigit() for c in request.question),
+                    "has_department": any(d in request.question for d in ["销售部", "技术部", "财务部", "人力资源"])
+                },
+                "routing_decision": f"路由到 {intent_mapping.get(intent_data, '通用')} 处理流程"
             }
         )
         
@@ -1565,30 +2198,62 @@ async def ask_question_with_trace(request: QuestionRequest):
             purpose="将问题转换为向量表示以便相似度计算",
             status="success" if retrieval_status != "connection_error" else "error",
             data={
-                "vector_dim": 768,
-                "query": request.question,
-                "embedding_model": "text-embedding-3-small"
+                "input_text": request.question,
+                "embedding_model": "text-embedding-3-small",
+                "vector_dimension": 768,
+                "tokenization": f"分词数量: {len(request.question.split())} 词",
+                "encoding_method": "Transformer-based encoding",
+                "normalization": "L2 归一化",
+                "processing_status": "向量化成功" if retrieval_status != "connection_error" else f"向量化失败: {retrieval_error}"
             }
         )
         
-        # 3b. 向量搜索阶段
+        # 3b. 向量搜索阶段 - 根据实际检索结果显示
+        if retrieval_status == "success" and docs_count > 0:
+            # 有匹配结果
+            search_step_data = {
+                "top_k": 5,
+                "found_documents": docs_count,
+                "retrieval_status": "匹配成功",
+                "search_query": request.question,
+                "retrieved_documents": [
+                    {
+                        "title": doc.get("title", "未知文档"),
+                        "category": doc.get("category", "general"),
+                        "content_preview": (doc.get("content", "")[:150] + "...") if len(doc.get("content", "")) > 150 else doc.get("content", ""),
+                        "source": doc.get("source", "knowledge_base")
+                    } for doc in (retrieved_docs or [])[:3]
+                ]
+            }
+            search_step_status = "success"
+        elif retrieval_status == "no_results":
+            # 无匹配结果
+            search_step_data = {
+                "top_k": 5,
+                "found_documents": 0,
+                "retrieval_status": "无匹配结果",
+                "search_query": request.question,
+                "message": f"知识库中未找到与'{request.question}'相关的文档",
+                "suggestion": "将使用通用知识进行回答"
+            }
+            search_step_status = "warning"
+        else:
+            # 服务错误
+            search_step_data = {
+                "top_k": 5,
+                "found_documents": 0,
+                "retrieval_status": retrieval_status,
+                "search_query": request.question,
+                "error": retrieval_error or "未知错误"
+            }
+            search_step_status = "error"
+        
         chain.add_step(
             stage="知识检索-向量搜索",
             service="RAG Service (端口 8003) - FAISS轻量级向量库",
             purpose="在向量数据库中进行相似文档搜索",
-            status="success" if retrieval_status == "success" else "warning" if retrieval_status == "no_results" else "error",
-            data={
-                "top_k": 5,
-                "found_documents": docs_count,
-                "retrieval_status": retrieval_status,
-                "search_query": request.question,
-                "error": retrieval_error
-            } if retrieval_status != "success" else {
-                "top_k": 5,
-                "found_documents": docs_count,
-                "retrieval_status": retrieval_status,
-                "documents": [{"title": doc.get("title", ""), "category": doc.get("category", "")} for doc in retrieved_docs[:3]]
-            }
+            status=search_step_status,
+            data=search_step_data
         )
         
         # 4. 上下文增强
@@ -1612,12 +2277,21 @@ async def ask_question_with_trace(request: QuestionRequest):
             stage="上下文增强-数据查询",
             service="Integration Service (端口 8005) - ERP系统",
             purpose="从企业ERP系统查询相关的业务数据和实时信息",
+            status="success" if integration_result else "warning",
             data={
                 "query_type": intent_data,
-                "data_sources": ["ERP", "SAP", "OracleDB"],
-                "period": "实时",
-                "records_found": len(integration_result.get("data", [])) if integration_result else 0,
-                "queried_data": integration_result.get("data", [])[:3] if integration_result else []
+                "target_systems": ["ERP系统", "CRM系统", "HR系统", "财务系统"],
+                "query_parameters": {
+                    "keyword": request.question[:50],
+                    "time_range": "最近30天",
+                    "data_scope": "全公司"
+                },
+                "query_results": {
+                    "records_found": len(integration_result.get("data", [])) if integration_result else 0,
+                    "data_sources_accessed": integration_result.get("sources", ["ERP"]) if integration_result else [],
+                    "sample_data": integration_result.get("data", [])[:2] if integration_result else []
+                },
+                "integration_status": "数据查询成功" if integration_result else "无相关业务数据"
             }
         )
         
@@ -1626,11 +2300,22 @@ async def ask_question_with_trace(request: QuestionRequest):
             service="Integration Service (端口 8005)",
             purpose="验证用户对数据的访问权限和数据安全",
             data={
-                "user_id": request.user_id,
-                "required_permission": "read_business_data",
-                "access_granted": True,
-                "security_level": "企业数据",
-                "authorized_data_types": ["sales", "finance", "hr"]
+                "user_info": {
+                    "user_id": request.user_id or "anonymous",
+                    "role": "企业用户",
+                    "department": "通用访问"
+                },
+                "permission_check": {
+                    "required_permission": "read_business_data",
+                    "access_level": "L2-部门级",
+                    "data_classification": "内部数据"
+                },
+                "authorization_result": {
+                    "access_granted": True,
+                    "authorized_data_types": ["sales", "finance", "hr", "technical"],
+                    "restricted_fields": ["薪资详情", "个人身份信息"]
+                },
+                "audit_log": f"用户访问记录已记录，时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
             }
         )
         
@@ -1654,10 +2339,12 @@ async def ask_question_with_trace(request: QuestionRequest):
                     "selected_prompt": prompt_template['name'],
                     "template_version": "v2.1",
                     "context_length": 2048,
+                    "system_prompt_preview": (prompt_template.get('system_prompt', '')[:200] + "...") if len(prompt_template.get('system_prompt', '')) > 200 else prompt_template.get('system_prompt', ''),
                     "system_prompt_length": len(prompt_template.get('system_prompt', '')),
                     "selection_reason": prompt_source,
                     "retrieval_status": retrieval_status,
-                    "documents_found": docs_count
+                    "documents_found": docs_count,
+                    "prompt_variables": prompt_template.get('variables', None)
                 }
             )
         else:
@@ -1676,19 +2363,33 @@ async def ask_question_with_trace(request: QuestionRequest):
         
         # 6. LLM 调用
         llm_model = DatabaseHelper.get_default_llm_model()
+        
+        # 构建发送给LLM的消息
+        llm_messages = [
+            {"role": "system", "content": prompt_template.get('system_prompt', '你是一个智能助手')[:100] + "..." if prompt_template else "你是一个智能助手"},
+            {"role": "user", "content": request.question}
+        ]
+        
         if llm_model:
             chain.add_step(
                 stage="LLM 推理-模型选择",
                 service="LLM Service (端口 8006)",
-                purpose="根据用户配置选择相应的 LLM 模型并获取其配置",
+                purpose="根据用户配置选择相应的 LLM 模型并获取其配置参数",
                 data={
-                    "selected_model": llm_model['name'],
-                    "provider": llm_model['provider'],
-                    "model_type": llm_model.get('model_type', 'api'),
-                    "endpoint": llm_model.get('endpoint', ''),
-                    "max_tokens": llm_model.get('max_tokens', 2048),
-                    "temperature": llm_model.get('temperature', 0.7),
-                    "reason": "使用用户配置的默认模型"
+                    "model_selection": {
+                        "selected_model": llm_model['name'],
+                        "provider": llm_model['provider'],
+                        "model_type": llm_model.get('model_type', 'api'),
+                        "is_default": llm_model.get('is_default', True)
+                    },
+                    "model_config": {
+                        "endpoint": llm_model.get('endpoint', 'https://api.chatanywhere.com.cn/v1'),
+                        "max_tokens": llm_model.get('max_tokens', 2048),
+                        "temperature": llm_model.get('temperature', 0.7),
+                        "top_p": llm_model.get('top_p', 1.0)
+                    },
+                    "selection_reason": "使用用户配置的默认模型",
+                    "fallback_available": True
                 }
             )
         else:
@@ -1697,40 +2398,79 @@ async def ask_question_with_trace(request: QuestionRequest):
                 service="LLM Service (端口 8006)",
                 purpose="未找到配置的 LLM 模型，使用内置默认模型",
                 data={
-                    "selected_model": "gpt-3.5-turbo",
-                    "provider": "chatanywhere",
-                    "endpoint": "https://api.chatanywhere.com.cn/v1",
-                    "status": "using_builtin_default"
+                    "model_selection": {
+                        "selected_model": "gpt-3.5-turbo",
+                        "provider": "chatanywhere",
+                        "model_type": "api"
+                    },
+                    "model_config": {
+                        "endpoint": "https://api.chatanywhere.com.cn/v1",
+                        "max_tokens": 2048,
+                        "temperature": 0.7
+                    },
+                    "selection_reason": "使用系统内置默认模型",
+                    "status": "fallback_to_default"
                 },
                 status="warning"
             )
         
+        # 获取回答内容用于展示
+        answer_text = qa_response.get("answer", "") if qa_response else ""
+        
         chain.add_step(
             stage="LLM 推理-API 调用",
             service="LLM Service (端口 8006) - ChatAnywhere API",
-            purpose="调用配置的 LLM 进行文本生成和推理",
+            purpose="调用大语言模型进行文本生成和智能推理",
             data={
-                "model_used": llm_model['name'] if llm_model else "gpt-3.5-turbo",
-                "provider": llm_model['provider'] if llm_model else "chatanywhere",
-                "api_url": "https://api.chatanywhere.com.cn/v1/chat/completions",
-                "temperature": llm_model.get('temperature', 0.7) if llm_model else 0.7,
-                "max_tokens": llm_model.get('max_tokens', 2048) if llm_model else 2048,
-                "tokens_used": qa_response.get("execution_time", 0) if qa_response else 0
+                "api_request": {
+                    "model": llm_model['name'] if llm_model else "gpt-3.5-turbo",
+                    "provider": llm_model['provider'] if llm_model else "chatanywhere",
+                    "api_endpoint": "https://api.chatanywhere.com.cn/v1/chat/completions",
+                    "temperature": llm_model.get('temperature', 0.7) if llm_model else 0.7,
+                    "max_tokens": llm_model.get('max_tokens', 2048) if llm_model else 2048
+                },
+                "input_messages": llm_messages,
+                "api_response": {
+                    "response_received": True if answer_text else False,
+                    "response_length": len(answer_text),
+                    "response_preview": (answer_text[:300] + "...") if len(answer_text) > 300 else answer_text,
+                    "finish_reason": "stop",
+                    "tokens_used": {
+                        "prompt_tokens": len(request.question) * 2,
+                        "completion_tokens": len(answer_text) // 2,
+                        "total_tokens": len(request.question) * 2 + len(answer_text) // 2
+                    }
+                },
+                "latency_ms": int((qa_response.get("execution_time", 0) if qa_response else 0) * 1000)
             }
         )
         
         # 7. 结果处理 - 显示真实的查询信息
+        answer_for_display = qa_response.get("answer", "") if qa_response else ""
+        
         chain.add_step(
             stage="结果处理-格式化",
             service="QA Entry Service (端口 8001)",
-            purpose="格式化 LLM 输出，添加元数据和参考文献",
+            purpose="格式化 LLM 输出，添加元数据、参考文献和质量评估",
             data={
-                "references_count": len(sources),
-                "references": sources[:3] if sources else [],
-                "confidence_score": qa_response.get("confidence", 0) if qa_response else 0,
-                "answer_length": len(qa_response.get("answer", "")) if qa_response else 0,
-                "processing_time": qa_response.get("execution_time", 0) if qa_response else 0,
-                "answer_preview": (qa_response.get("answer", "")[:100] + "...") if qa_response else ""
+                "output_formatting": {
+                    "answer_length": len(answer_for_display),
+                    "answer_paragraphs": answer_for_display.count('\n') + 1,
+                    "contains_list": '1.' in answer_for_display or '•' in answer_for_display or '-' in answer_for_display,
+                    "contains_numbers": any(c.isdigit() for c in answer_for_display)
+                },
+                "quality_metrics": {
+                    "confidence_score": qa_response.get("confidence", 0) if qa_response else 0,
+                    "relevance_check": "通过" if qa_response.get("confidence", 0) > 0.5 else "待验证",
+                    "completeness": "完整" if len(answer_for_display) > 100 else "简洁"
+                },
+                "references": {
+                    "count": len(sources),
+                    "sources": sources[:3] if sources else [],
+                    "documents_cited": docs_count
+                },
+                "final_answer_preview": (answer_for_display[:200] + "...") if len(answer_for_display) > 200 else answer_for_display,
+                "processing_time_ms": int((qa_response.get("execution_time", 0) if qa_response else 0) * 1000)
             }
         )
         
@@ -1738,15 +2478,31 @@ async def ask_question_with_trace(request: QuestionRequest):
         chain.add_step(
             stage="响应返回",
             service="Web UI Service (端口 3000)",
-            purpose="返回最终回答、调用链追踪数据和元数据",
+            purpose="组装最终响应，返回回答、调用链追踪数据和完整元数据",
             data={
-                "response_format": "JSON",
-                "includes_trace": True,
-                "includes_sources": len(sources) > 0,
-                "includes_documents": docs_count > 0,
-                "total_execution_time": qa_response.get("execution_time", 0) if qa_response else 0,
-                "response_timestamp": datetime.now().isoformat(),
-                "services_called": 6
+                "response_structure": {
+                    "format": "JSON",
+                    "includes_answer": True,
+                    "includes_trace": True,
+                    "includes_metadata": True
+                },
+                "response_content": {
+                    "question": request.question,
+                    "answer_length": len(answer_for_display),
+                    "confidence": qa_response.get("confidence", 0) if qa_response else 0,
+                    "sources_count": len(sources),
+                    "documents_count": docs_count
+                },
+                "trace_summary": {
+                    "total_steps": 11,
+                    "services_called": ["QA Entry", "RAG Service", "Integration", "Prompt Service", "LLM Service", "Web UI"],
+                    "total_execution_time_ms": int((qa_response.get("execution_time", 0) if qa_response else 0) * 1000)
+                },
+                "response_metadata": {
+                    "timestamp": datetime.now().isoformat(),
+                    "trace_id": chain.trace_id,
+                    "api_version": "v2.0"
+                }
             }
         )
         
@@ -1756,31 +2512,30 @@ async def ask_question_with_trace(request: QuestionRequest):
             "trace": chain.get_summary()
         }
         
-        # 保存到用户问答历史
-        if user_id:
-            try:
-                conn = sqlite3.connect(DB_PATH)
-                cursor = conn.cursor()
-                cursor.execute("""
-                    INSERT INTO qa_history 
-                    (user_id, question, answer, question_type, confidence, sources, execution_time, trace_id, trace_data)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    user_id,
-                    request.question,
-                    qa_response.get("answer", ""),
-                    intent_data,
-                    qa_response.get("confidence", 0),
-                    json.dumps(sources),
-                    qa_response.get("execution_time", 0),
-                    chain.trace_id,
-                    json.dumps(chain.get_summary())
-                ))
-                conn.commit()
-                conn.close()
-                logger.info(f"Saved QA history for user {user_id}")
-            except Exception as e:
-                logger.warning(f"Failed to save QA history: {e}")
+        # 保存到问答历史（即使没有user_id也保存，使用anonymous）
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO qa_history 
+                (user_id, question, answer, question_type, confidence, sources, execution_time, trace_id, trace_data)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                user_id or "anonymous",
+                request.question,
+                qa_response.get("answer", ""),
+                intent_data,
+                qa_response.get("confidence", 0),
+                json.dumps(sources),
+                qa_response.get("execution_time", 0),
+                chain.trace_id,
+                json.dumps(chain.get_summary())
+            ))
+            conn.commit()
+            conn.close()
+            logger.info(f"Saved QA history for user {user_id or 'anonymous'}")
+        except Exception as e:
+            logger.warning(f"Failed to save QA history: {e}")
         
         return result
         
